@@ -4,6 +4,7 @@ from neurosdk.cmn_types import *
 
 def handle_request():
     if g.hb == None:
+        #print("Data Flowing")
         return ["Data Flowing"]
 
     g.hb.exec_command(SensorCommand.CommandStartSignal)

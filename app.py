@@ -29,6 +29,32 @@ FlaskJSON(app)
 
 #g is flask for a global var storage 
 def init_new_env():
+    #Set up watched videos
+    g.watched_videos = {"dummy" : {
+        "name" : "dummy.mp4",
+        "tags" : ["Test"]
+    }}
+
+    #Set up unwatched videos
+    g.unwatched_videos = {
+        "movie.mp4" : {
+            "name" : "movie.mp4",
+            "tags" : ["Trees", "Bus", "Short"]
+        },
+        "movie1.mp4" : {
+            "name" : "movie1.mp4",
+            "tags" : ["Beach", "Person", "Water", "Medium"]
+        },
+        "movie2.mp4" : {
+            "name" : "movie2.mp4",
+            "tags" : ["Plants", "Bright", "Water", "Long"]
+        },
+        "movie3.mp4" : {
+            "name" : "movie3.mp4",
+            "tags" : ["Trees", "Plants", "Long"]
+        }
+    }
+
     #To connect to DB
     if 'db' not in g:
         g.db = get_db()
@@ -65,7 +91,8 @@ def exec_secure_proc(proc_name):
         ex_data = ex_data + traceback.format_exc()
         logger.error(ex_data)
         return json_response(status_=500 ,data=ERROR_MSG)
-
+    
+    print(resp)
     return resp
 
 
@@ -81,14 +108,22 @@ def exec_proc(proc_name):
     resp = ""
     try:
         fn = getattr(__import__('open_calls.'+proc_name), proc_name)
-        resp = fn.handle_request()
+        
+        #Check which proccess we are calling
+        match(proc_name):
+            case "end_movie":
+                #For the end movie event we pass back {data : previous_video} 
+                resp = fn.handle_request(request.form['data'])
+            case "_":
+                #By default we pass nothing to the request
+                resp = fn.handle_request()
     except Exception as err:
         ex_data = str(Exception) + '\n'
         ex_data = ex_data + str(err) + '\n'
         ex_data = ex_data + traceback.format_exc()
         logger.error(ex_data)
         return json_response(status_=500 ,data=ERROR_MSG)
-
+    print(resp)
     return resp
 
 

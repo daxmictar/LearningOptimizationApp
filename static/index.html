@@ -17,19 +17,55 @@
 					console.log("error");
 				console.log(response);});
 		}
+
+		/*
+		 * @description On video end make a call to the server
+		 * @param previous_video The src of the previously played video that just ended  
+		 */
+		function play_end(previous_video){
+			$.post("/open_api/end_movie", {"data" : previous_video},
+				function(data, textStatus) {
+					//Gets called when browser recieves response from server
+					console.log("DATA: ");
+					console.log(data);
+
+					//Grab the video and the video source
+					video = document.getElementById("video")
+					video_source = document.getElementById("video_source")
+					
+					//Set the source to the new video recieved from server
+					video_source.setAttribute("src", data);
+
+					//Load the video
+					video.load();
+				}, "json").fail(function(response){
+					console.log("Error");
+					console.log(response);
+				});
+		}
 	</script>
 
-
-	<video id="video" width="320" height="240" controls>
-		  <source src="movie.mp4" type="video/mp4">
-			Your browser does not support the video tag.
-	</video>
-
+	<center>
+		<video id="video" width="640" height="480" controls>
+			<source id="video_source" src="movie.mp4" type="video/mp4">
+				Your browser does not support the video tag.
+		</video>
+	</center>
 
 	<script>
+		//Listens for a video start and issues a call that sends previous video to server via play_end function.
 		video.addEventListener("play", (event) => {
 			play_start();
 		});
+		
+		//Listens for a video end and issues a call that sends previous video to server via play_end function.
+		//Also stops headband feed if it is open
+		video.addEventListener("ended", (event) => {
+			var prev_video = document.getElementById("video_source").getAttribute("src")
+			console.log("Source in Listener: ");
+			console.log(prev_video);
+			play_end(prev_video);
+		})
 	</script>
 
     </body>
