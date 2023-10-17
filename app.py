@@ -76,10 +76,6 @@ def init_new_env(watched, unwatched):
 def survey():
     return redirect('/static/survey.html')
 
-@app.route('/static/index.html')
-def index():
-    return "Hello World"
-
 @app.route("/secure_api/<proc_name>",methods=['GET', 'POST'])
 @token_required
 def exec_secure_proc(proc_name):
@@ -126,7 +122,6 @@ def exec_proc(proc_name):
                 resp = fn.handle_request(request.form['data'])
             case "submit_survey":
                 resp = fn.handle_request(request.form)
-                return redirect('/static/index.html')
             case "_":
                 #By default we pass nothing to the request
                 resp = fn.handle_request()
@@ -137,6 +132,7 @@ def exec_proc(proc_name):
         logger.error(ex_data)
         return json_response(status_=500 ,data=ERROR_MSG)
     print(resp)
+
     return resp
 
 
