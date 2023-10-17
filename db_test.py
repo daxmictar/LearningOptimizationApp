@@ -1,17 +1,31 @@
 import sqlite3
 from flask import g
+from db_con import get_db
+from tools.logging import logger
 
-#drop and recreate tables in local_data_base
+#drop and recreate movie table in local_data_base
 def refresh_db():
-    g.cur.execute("DROP TABLE IF EXISTS mov_unwatched;")
-    g.cur.execute("DROP TABLE IF EXISTS mov_watched;")
-    g.cur.execute("CREATE TABLE mov_unwatched (id integer PRIMARY KEY, filename text NOT NULL, tags text)")
-    g.cur.execute("CREATE TABLE mov_watched (id integer PRIMARY KEY, filename text NOT NULL, tags text)")
-    
-    g.cur.execute("INSERT INTO mov_unwatched VALUES (1, 'movie.mp4', 'Trees Bus Short')")
-    g.cur.execute("INSERT INTO mov_unwatched VALUES (2, 'movie2.mp4', 'Beach Person Water Medium')")
-    g.cur.execute("INSERT INTO mov_unwatched VALUES (3, 'movie3.mp4', 'Plants Bright Water Long')")
-    g.cur.execute("INSERT INTO mov_unwatched VALUES (4, 'movie4.mp4', 'Trees Plants Long');")
-    
-    #g.cur.execute("SELECT * FROM ???;")
-    #print(g.cur.fetchall())
+    db = get_db()
+    cur = db.cursor()
+    cur.execute("DROP TABLE IF EXISTS mov_unwatched;")
+    cur.execute("DROP TABLE IF EXISTS mov_watched;")
+    cur.execute("DROP TABLE IF EXISTS movies;")
+
+    cur.execute("CREATE TABLE movies (id INTEGER PRIMARY KEY, filename TEXT NOT NULL, tags TEXT, watched INTEGER)")
+
+    cur.execute("INSERT INTO movies VALUES (1, 'movie.mp4', 'Trees Bus Short', 0)")
+    cur.execute("INSERT INTO movies VALUES (2, 'movie2.mp4', 'Beach Person Water Medium', 0)")
+    cur.execute("INSERT INTO movies VALUES (3, 'movie3.mp4', 'Plants Bright Water Long', 0)")
+    cur.execute("INSERT INTO movies VALUES (4, 'movie4.mp4', 'Trees Plants Long', 0);")
+
+    db.commit()
+
+def set_watched(movie):
+    db = get_db()
+    cur = db.cursor()
+    cur.execute("UPDATE movies SET watched=1 WHERE filename=?", (movie,))
+    cur.execute("SELECT filename FROM movies WHERE watched=0")
+    logger.debug(cur.fetchall())
+    cur.execute("SELECT filename FROM movies WHERE watched=1")
+    logger.debug(cur.fetchall())
+    db.commit()
