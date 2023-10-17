@@ -29,6 +29,7 @@ app = Flask(__name__)
 #add in flask json
 FlaskJSON(app)
 
+"""
 #Set up watched videos
 global watched_videos
 watched_videos = {}
@@ -52,19 +53,16 @@ unwatched_videos = {
         "tags" : ["Trees", "Plants", "Long"]
     }
 }
+"""
 
-#g is flask for a global var storage 
-def init_new_env(watched, unwatched):
+#g is flask for a global var storage
+def init_new_env():
     #To connect to DB
     if 'db' not in g:
         g.db = get_db()
 
     if 'hb' not in g:
         g.hb = get_head_band_sensor_object()
-
-    #Dictionary definitions for both watched and unwatched videos
-    g.watched_videos = watched
-    g.unwatched_videos = unwatched
 
     #g.secrets = get_secrets()
     #g.sms_client = get_sms_client()
@@ -105,7 +103,7 @@ def exec_proc(proc_name):
     logger.debug(f"Call to {proc_name}")
 
     #setup the env
-    init_new_env(watched_videos, unwatched_videos)
+    init_new_env()
 
     #see if we can execute it..
     resp = ""
