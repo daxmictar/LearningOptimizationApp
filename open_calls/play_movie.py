@@ -5,8 +5,10 @@ from neurosdk.cmn_types import *
 def handle_request():
     if g.hb == None:
         #print("Data Flowing")
-        return ["Data Flowing"]
+        return ["No Headband"]
 
     g.hb.exec_command(SensorCommand.CommandStartSignal)
+
+
     return ["Data Flowing"]
 
