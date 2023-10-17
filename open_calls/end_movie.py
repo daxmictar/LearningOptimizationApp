@@ -2,6 +2,7 @@ from flask import request, g
 from tools.logging import logger   
 from neurosdk.cmn_types import * 
 import random
+from db_test import set_watched
 
 #Returns the next video based on the last video
 #For now just randomly selects a unwatched video
@@ -12,6 +13,7 @@ def get_next_video(previous_video: str):
 
     #Remove the finished video from the list of unwatched videos (previous_video is just the name string)
     watched_video = g.unwatched_videos.pop(previous_video)
+    set_watched(watched_video)
 
     #logger.debug(f"{watched_video}  {watched_video['name']}  {watched_video['tags']}")
     logger.debug(previous_video + " removed from unwatch list.")

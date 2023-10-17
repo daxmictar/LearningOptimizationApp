@@ -12,6 +12,8 @@ from tools.eeg import get_head_band_sensor_object
 
 from db_con import get_db_instance, get_db
 
+from db_test import refresh_db
+
 from tools.token_required import token_required
 
 #used if you want to store your secrets in the aws valut
@@ -56,6 +58,7 @@ def init_new_env(watched, unwatched):
     #To connect to DB
     if 'db' not in g:
         g.db = get_db()
+    refresh_db()
 
     if 'hb' not in g:
         g.hb = get_head_band_sensor_object()
