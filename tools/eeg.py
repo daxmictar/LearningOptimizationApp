@@ -9,7 +9,7 @@ from tools.logging import logger
 #doing all this a the "module level" in "Demo" server mode it will work fine :)
 
 def on_sensor_state_changed(sensor, state):
-    logger.debug('Sensor {0} is {1}'.format(sensor.Name, state))
+    logger.debug('Sensor {0} is {1}'.format(sensor.name, state))
 
 def on_brain_bit_signal_data_received(sensor, data):
     logger.debug(data)
