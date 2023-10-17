@@ -3,7 +3,7 @@ from flask import g
 from db_con import get_db
 from tools.logging import logger
 
-#drop and recreate movie table in local_data_base
+#drop and recreate movies table in local_data_base
 def refresh_db():
     db = get_db()
     cur = db.cursor()
@@ -22,7 +22,7 @@ def refresh_db():
 
     db.commit()
 
-#in local_data_base, set watched flag attribute of the movie that has filename matching passed string
+#in local_data_base, sets watched flag attribute of the video that has filename matching passed string
 def set_watched(movie):
     db = get_db()
     cur = db.cursor()
@@ -32,15 +32,37 @@ def set_watched(movie):
     if cur.fetchone()==(0,):
         #debug output
         logger.debug("Setting watched flag for " + movie)
-        #set watched flag of movie with passed string as name
+        #set watched flag of video with passed string as name
         cur.execute("UPDATE movies SET watched=1 WHERE filename=?", (movie,))
 
     #debug output
-    logger.debug("Unwatched movies:")
+    logger.debug("Unwatched videos:")
     cur.execute("SELECT filename FROM movies WHERE watched=0")
     logger.debug(cur.fetchall())
-    logger.debug("Watched movies:")
+    
+    logger.debug("Watched videos:")
     cur.execute("SELECT filename FROM movies WHERE watched=1")
     logger.debug(cur.fetchall())
 
     db.commit()
+
+#returns the filename of a random unwatched movie, or returns passed string (same video) if no unwatched videos remain
+def get_unwatched(previous_video):
+    db = get_db()
+    cur = db.cursor()
+
+    #if there are any more unwatched videos, randomly select one and return its filename
+    cur.execute("SELECT COUNT(*) FROM movies WHERE watched=0")
+    if cur.fetchone()[0]>0:
+        # !!!ALERT!!! remember random() will be too expensive here when number of movies is large
+        cur.execute("SELECT filename FROM movies WHERE watched=0 ORDER BY random()") 
+        next_video = cur.fetchone()[0]
+
+        logger.debug("Randomly selecting an unwatched video.")
+
+        return next_video
+    
+    #else return the passed string (previous video filename)
+    else:
+        logger.debug("No unwatched videos remain. Replaying.")
+        return previous_video
