@@ -29,34 +29,32 @@ app = Flask(__name__)
 #add in flask json
 FlaskJSON(app)
 
-#g is flask for a global var storage 
-def init_new_env():
-    #Set up watched videos
-    g.watched_videos = {"dummy" : {
-        "name" : "dummy.mp4",
-        "tags" : ["Test"]
-    }}
+#Set up watched videos
+global watched_videos
+watched_videos = {}
 
-    #Set up unwatched videos
-    g.unwatched_videos = {
-        "movie.mp4" : {
-            "name" : "movie.mp4",
-            "tags" : ["Trees", "Bus", "Short"]
-        },
-        "movie1.mp4" : {
-            "name" : "movie1.mp4",
-            "tags" : ["Beach", "Person", "Water", "Medium"]
-        },
-        "movie2.mp4" : {
-            "name" : "movie2.mp4",
-            "tags" : ["Plants", "Bright", "Water", "Long"]
-        },
-        "movie3.mp4" : {
-            "name" : "movie3.mp4",
-            "tags" : ["Trees", "Plants", "Long"]
-        }
+global unwatched_videos
+unwatched_videos = {
+    "movie.mp4" : {
+        "name" : "movie.mp4",
+        "tags" : ["Trees", "Bus", "Short"]
+    },
+    "movie1.mp4" : {
+        "name" : "movie1.mp4",
+        "tags" : ["Beach", "Person", "Water", "Medium"]
+    },
+    "movie2.mp4" : {
+        "name" : "movie2.mp4",
+        "tags" : ["Plants", "Bright", "Water", "Long"]
+    },
+    "movie3.mp4" : {
+        "name" : "movie3.mp4",
+        "tags" : ["Trees", "Plants", "Long"]
     }
+}
 
+#g is flask for a global var storage 
+def init_new_env(watched, unwatched):
     #To connect to DB
     if 'db' not in g:
         g.db = get_db()
@@ -65,15 +63,22 @@ def init_new_env():
     if 'hb' not in g:
         g.hb = get_head_band_sensor_object()
 
+    #Dictionary definitions for both watched and unwatched videos
+    g.watched_videos = watched
+    g.unwatched_videos = unwatched
+
     #g.secrets = get_secrets()
     #g.sms_client = get_sms_client()
 
 #This gets executed by default by the browser if no page is specified
 #So.. we redirect to the endpoint we want to load the base page
 @app.route('/') #endpoint
-def index():
-    return redirect('/static/index.html')
+def survey():
+    return redirect('/static/survey.html')
 
+@app.route('/static/index.html')
+def index():
+    return "Hello World"
 
 @app.route("/secure_api/<proc_name>",methods=['GET', 'POST'])
 @token_required
@@ -105,18 +110,23 @@ def exec_proc(proc_name):
     logger.debug(f"Call to {proc_name}")
 
     #setup the env
-    init_new_env()
+    init_new_env(watched_videos, unwatched_videos)
 
     #see if we can execute it..
     resp = ""
     try:
         fn = getattr(__import__('open_calls.'+proc_name), proc_name)
         
+        print(request.form)
+
         #Check which proccess we are calling
         match(proc_name):
             case "end_movie":
                 #For the end movie event we pass back {data : previous_video} 
                 resp = fn.handle_request(request.form['data'])
+            case "submit_survey":
+                resp = fn.handle_request(request.form)
+                return redirect('/static/index.html')
             case "_":
                 #By default we pass nothing to the request
                 resp = fn.handle_request()
