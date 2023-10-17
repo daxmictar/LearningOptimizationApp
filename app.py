@@ -119,7 +119,7 @@ def exec_proc(proc_name):
                 resp = fn.handle_request(request.form['data'])
             case "submit_survey":
                 resp = fn.handle_request(request.form)
-            case "_":
+            case _:
                 #By default we pass nothing to the request
                 resp = fn.handle_request()
     except Exception as err:
