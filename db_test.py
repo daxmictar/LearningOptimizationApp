@@ -7,25 +7,40 @@ from tools.logging import logger
 def refresh_db():
     db = get_db()
     cur = db.cursor()
-    cur.execute("DROP TABLE IF EXISTS mov_unwatched;")
-    cur.execute("DROP TABLE IF EXISTS mov_watched;")
-    cur.execute("DROP TABLE IF EXISTS movies;")
 
-    cur.execute("CREATE TABLE movies (id INTEGER PRIMARY KEY, filename TEXT NOT NULL, tags TEXT, watched INTEGER)")
+    #delete movies table
+    cur.execute("DROP TABLE IF EXISTS movies")
 
-    cur.execute("INSERT INTO movies VALUES (1, 'movie.mp4', 'Trees Bus Short', 0)")
-    cur.execute("INSERT INTO movies VALUES (2, 'movie2.mp4', 'Beach Person Water Medium', 0)")
-    cur.execute("INSERT INTO movies VALUES (3, 'movie3.mp4', 'Plants Bright Water Long', 0)")
-    cur.execute("INSERT INTO movies VALUES (4, 'movie4.mp4', 'Trees Plants Long', 0);")
+    #create movies table 
+    cur.execute("CREATE TABLE movies (filename TEXT NOT NULL, tags TEXT, watched INTEGER, priority INTEGER)")
+
+    #insert rows descriptive of movies located in static
+    cur.execute("INSERT INTO movies VALUES ('movie.mp4', 'Trees Bus Short', 0, 0)")
+    cur.execute("INSERT INTO movies VALUES ('movie1.mp4', 'Beach Person Water Medium', 0, 0)")
+    cur.execute("INSERT INTO movies VALUES ('movie2.mp4', 'Plants Bright Water Long', 0, 0)")
+    cur.execute("INSERT INTO movies VALUES ('movie3.mp4', 'Trees Plants Long', 0, 0)")
 
     db.commit()
 
+#in local_data_base, set watched flag attribute of the movie that has filename matching passed string
 def set_watched(movie):
     db = get_db()
     cur = db.cursor()
-    cur.execute("UPDATE movies SET watched=1 WHERE filename=?", (movie,))
+
+    #check that watched flag is not already set
+    cur.execute("SELECT watched FROM movies WHERE filename=?", (movie,))
+    if cur.fetchone()==(0,):
+        #debug output
+        logger.debug("Setting watched flag for " + movie)
+        #set watched flag of movie with passed string as name
+        cur.execute("UPDATE movies SET watched=1 WHERE filename=?", (movie,))
+
+    #debug output
+    logger.debug("Unwatched movies:")
     cur.execute("SELECT filename FROM movies WHERE watched=0")
     logger.debug(cur.fetchall())
+    logger.debug("Watched movies:")
     cur.execute("SELECT filename FROM movies WHERE watched=1")
     logger.debug(cur.fetchall())
+
     db.commit()
