@@ -34,7 +34,7 @@ def set_watched(movie):
 
         #set watched flag of video with passed string as name
         cur.execute("UPDATE movies SET watched=1 WHERE filename=?", (movie,))
-        
+
     db.commit()
 
     #debug messages
@@ -61,7 +61,7 @@ def get_unwatched(previous_video):
 
         return next_video
     
-    #else return the passed string (previous video filename)
+    #if no more unwatched videos, return the passed string (previous video filename)
     else:
-        logger.debug("No unwatched videos remain. Replaying.")
+        logger.debug("No unwatched videos remain. Replaying previous.")
         return previous_video
