@@ -58,7 +58,6 @@ def init_new_env(watched, unwatched):
     #To connect to DB
     if 'db' not in g:
         g.db = get_db()
-    refresh_db()
 
     if 'hb' not in g:
         g.hb = get_head_band_sensor_object()
@@ -137,5 +136,6 @@ def exec_proc(proc_name):
 
 
 if __name__ == '__main__':
+    refresh_db()
     app.run(host='0.0.0.0', port=80)
 

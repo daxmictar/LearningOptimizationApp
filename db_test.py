@@ -16,9 +16,9 @@ def refresh_db():
 
     #insert rows descriptive of movies located in static
     cur.execute("INSERT INTO movies VALUES ('movie.mp4', 'Trees Bus Short', 0, 0)")
-    cur.execute("INSERT INTO movies VALUES ('movie2.mp4', 'Beach Person Water Medium', 0, 0)")
-    cur.execute("INSERT INTO movies VALUES ('movie3.mp4', 'Plants Bright Water Long', 0, 0)")
-    cur.execute("INSERT INTO movies VALUES ('movie4.mp4', 'Trees Plants Long', 0, 0)")
+    cur.execute("INSERT INTO movies VALUES ('movie1.mp4', 'Beach Person Water Medium', 0, 0)")
+    cur.execute("INSERT INTO movies VALUES ('movie2.mp4', 'Plants Bright Water Long', 0, 0)")
+    cur.execute("INSERT INTO movies VALUES ('movie3.mp4', 'Trees Plants Long', 0, 0)")
 
     db.commit()
 
@@ -27,12 +27,19 @@ def set_watched(movie):
     db = get_db()
     cur = db.cursor()
 
-    #set watched flag of movie with passed string as name
-    cur.execute("UPDATE movies SET watched=1 WHERE filename=?", (movie,))
+    #check that watched flag is not already set
+    cur.execute("SELECT watched FROM movies WHERE filename=?", (movie,))
+    if cur.fetchone()==(0,):
+        #debug output
+        logger.debug("Setting watched flag for " + movie)
+        #set watched flag of movie with passed string as name
+        cur.execute("UPDATE movies SET watched=1 WHERE filename=?", (movie,))
 
     #debug output
+    logger.debug("Unwatched movies:")
     cur.execute("SELECT filename FROM movies WHERE watched=0")
     logger.debug(cur.fetchall())
+    logger.debug("Watched movies:")
     cur.execute("SELECT filename FROM movies WHERE watched=1")
     logger.debug(cur.fetchall())
 

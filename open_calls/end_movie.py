@@ -13,6 +13,8 @@ def get_next_video(previous_video: str):
 
     #Remove the finished video from the list of unwatched videos (previous_video is just the name string)
     watched_video = g.unwatched_videos.pop(previous_video)
+
+    #set watched flag for previous video in its db row
     set_watched(previous_video)
 
     #logger.debug(f"{watched_video}  {watched_video['name']}  {watched_video['tags']}")
