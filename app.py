@@ -12,7 +12,7 @@ from tools.eeg import get_head_band_sensor_object
 
 from db_con import get_db_instance, get_db
 
-#from db_test import refresh_db
+from db_test import refresh_db
 
 from tools.token_required import token_required
 
@@ -29,6 +29,10 @@ app = Flask(__name__)
 #add in flask json
 FlaskJSON(app)
 
+global data_file
+data_file = {"file" : None}
+
+"""
 #Set up watched videos
 global watched_videos
 watched_videos = {}
@@ -52,20 +56,16 @@ unwatched_videos = {
         "tags" : ["Trees", "Plants", "Long"]
     }
 }
+"""
 
-#g is flask for a global var storage 
-def init_new_env(watched, unwatched):
+#g is flask for a global var storage
+def init_new_env():
     #To connect to DB
     if 'db' not in g:
         g.db = get_db()
-    #refresh_db()
 
     if 'hb' not in g:
         g.hb = get_head_band_sensor_object()
-
-    #Dictionary definitions for both watched and unwatched videos
-    g.watched_videos = watched
-    g.unwatched_videos = unwatched
 
     #g.secrets = get_secrets()
     #g.sms_client = get_sms_client()
@@ -106,7 +106,7 @@ def exec_proc(proc_name):
     logger.debug(f"Call to {proc_name}")
 
     #setup the env
-    init_new_env(watched_videos, unwatched_videos)
+    init_new_env()
 
     #see if we can execute it..
     resp = ""
@@ -122,6 +122,8 @@ def exec_proc(proc_name):
                 resp = fn.handle_request(request.form['data'])
             case "submit_survey":
                 resp = fn.handle_request(request.form)
+            case "play_movie":
+                resp = fn.handle_request(request.form['data'])
             case _:
                 #By default we pass nothing to the request
                 resp = fn.handle_request()
@@ -137,5 +139,6 @@ def exec_proc(proc_name):
 
 
 if __name__ == '__main__':
+    refresh_db()
     app.run(host='0.0.0.0', port=80)
 
