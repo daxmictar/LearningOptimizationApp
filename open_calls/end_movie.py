@@ -2,7 +2,7 @@ from flask import request, g
 from tools.logging import logger   
 from neurosdk.cmn_types import * 
 import random
-from db_test import set_watched, get_unwatched
+from db_test import set_watched, get_unwatched, get_tags
 
 #Returns the next video based on the last video
 #For now just randomly selects a unwatched video

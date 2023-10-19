@@ -74,3 +74,23 @@ def get_unwatched(previous_video):
     else:
         logger.debug("No unwatched videos remain. Replaying previous.")
         return previous_video
+    
+#lookup db entry for video with passed string as filename, return its tags as a list of strings
+def get_tags(movie):
+    db = get_db()
+    cur = db.cursor()
+
+    cur.execute("SELECT tags FROM movies WHERE filename=?", (movie,))
+    #fetch result of query and, using whitespace as delimiters, split it into a list
+    tag_list = (cur.fetchone()[0]).split()
+
+    db.close()
+
+    return tag_list
+
+#return list of filenames for videos which match all tags in passed list
+def get_matching_videos(tag_list):
+    db = get_db()
+    cur = db.cursor()
+
+    
