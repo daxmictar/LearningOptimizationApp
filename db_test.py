@@ -7,33 +7,40 @@ def refresh_db():
     db = get_db()
     cur = db.cursor()
 
-    #delete movies table
+    #delete movies table ahead of (re)creation
     cur.execute("DROP TABLE IF EXISTS movies")
 
-    #create movies table 
-    cur.execute("CREATE TABLE movies (filename TEXT NOT NULL, tags TEXT, watched INTEGER, priority INTEGER)")
+    #create movies table
+    """
+    key for attribute 'watched':
+         -1 : watched with attention
+          0 : unwatched (initial default)
+        >=1 : watched partially or without attention, where value equals quantity of failures to watch with attention
+    """
+    cur.execute("CREATE TABLE movies (filename TEXT PRIMARY KEY, tags TEXT, watched INTEGER)")
 
-    #insert rows descriptive of movies located in static
-    cur.execute("INSERT INTO movies VALUES ('movie.mp4', 'Trees Bus Short', 0, 0)")
-    cur.execute("INSERT INTO movies VALUES ('movie1.mp4', 'Beach Person Water Medium', 0, 0)")
-    cur.execute("INSERT INTO movies VALUES ('movie2.mp4', 'Plants Bright Water Long', 0, 0)")
-    cur.execute("INSERT INTO movies VALUES ('movie3.mp4', 'Trees Plants Long', 0, 0)")
+    #insert rows descriptive of movies located in static directory
+    cur.execute("INSERT INTO movies VALUES ('movie.mp4', 'Trees Bus Short', 0)")
+    cur.execute("INSERT INTO movies VALUES ('movie1.mp4', 'Beach Person Water Medium', 0)")
+    cur.execute("INSERT INTO movies VALUES ('movie2.mp4', 'Plants Bright Water Long', 0)")
+    cur.execute("INSERT INTO movies VALUES ('movie3.mp4', 'Trees Plants Long', 0)")
 
     db.commit()
+    db.close()
 
-#in local_data_base, sets watched flag attribute of the video that has filename matching passed string
+#in local_data_base, sets watched attribute to -1 of the video that has filename matching passed string
 def set_watched(movie):
     db = get_db()
     cur = db.cursor()
 
     #if watched flag is not already set on video with passed string as filename...
     cur.execute("SELECT watched FROM movies WHERE filename=?", (movie,))
-    if cur.fetchone()==(0,):
+    if cur.fetchone()!=(-1,):
         #debug output
         logger.debug("Setting watched flag for " + movie)
 
         #set watched flag of video with passed string as name
-        cur.execute("UPDATE movies SET watched=1 WHERE filename=?", (movie,))
+        cur.execute("UPDATE movies SET watched=-1 WHERE filename=?", (movie,))
 
     db.commit()
 
@@ -42,8 +49,10 @@ def set_watched(movie):
     cur.execute("SELECT filename FROM movies WHERE watched=0")
     logger.debug(cur.fetchall())
     logger.debug("Watched videos:")
-    cur.execute("SELECT filename FROM movies WHERE watched=1")
+    cur.execute("SELECT filename FROM movies WHERE watched=-1")
     logger.debug(cur.fetchall())
+
+    db.close()
 
 #returns the filename of a random unwatched movie, or returns passed string (same video) if no unwatched videos remain
 def get_unwatched(previous_video):
