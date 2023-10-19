@@ -18,6 +18,8 @@ def get_next_video(previous_video: str):
 
 
 def handle_request(previous_video):
+    from app import data_file
+    
     #Place holder for finding next video
     next_video = get_next_video(previous_video)
 
@@ -31,7 +33,11 @@ def handle_request(previous_video):
 
     #If there is a headband stop recieving data because no video is playing yet
     g.hb.exec_command(SensorCommand.CommandStopSignal)
-    
+
+    #close file based on video name
+    data_file['file'].close()
+    data_file['file'] = None
+
     #Send just the video name to the browser (May want to send more information later but for now working with this)
     return [next_video]
 

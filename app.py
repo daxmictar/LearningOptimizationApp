@@ -29,6 +29,9 @@ app = Flask(__name__)
 #add in flask json
 FlaskJSON(app)
 
+global data_file
+data_file = {"file" : None}
+
 """
 #Set up watched videos
 global watched_videos
@@ -119,6 +122,8 @@ def exec_proc(proc_name):
                 resp = fn.handle_request(request.form['data'])
             case "submit_survey":
                 resp = fn.handle_request(request.form)
+            case "play_movie":
+                resp = fn.handle_request(request.form['data'])
             case _:
                 #By default we pass nothing to the request
                 resp = fn.handle_request()
