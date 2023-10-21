@@ -33,6 +33,23 @@ def refresh_db():
 
     db.commit()
     db.close()
+    
+"""
+Name:       is_watched
+Purpose:    get the value of the watched attribute for the video with passed filename
+Parameter:  string representing video filename
+Return:     integer representing value of watched attribute
+"""
+def is_watched(movie):
+    db = get_db()
+    cur = db.cursor()
+    
+    cur.execute("SELECT watched FROM movies WHERE filename=?", (movie,))
+    watched = cur.fetchone()[0]
+    
+    db.close()
+    
+    return watched
 
 """
 Name:       set_watched
@@ -112,6 +129,7 @@ def get_tags(movie):
 """
 Name:       get_matching_videos
 Purpose:    get a list of video filenames which match all of the tags in the passed list of tags
+            (currently does not discriminate by watched attribute value)
 Parameter:  list of strings representing tags
 Return:     list of strings representing video filenames
 """
