@@ -16,8 +16,8 @@ def get_next_video(previous_video: str):
     next_video = get_unwatched(previous_video)
     """
 
-    #change this value to affect how update_prev_get_next updates the watched value of previous video
-    attention = False
+    #change this value to affect how the following call of update_prev_get_next updates the watched value of previous video
+    attention = random.getrandbits(1) #currently will randomly produce 0 or 1
 
     #update value of watched for previous video based on value of attention, and get filename for next video
     next_video = (update_prev_get_next(previous_video, attention))

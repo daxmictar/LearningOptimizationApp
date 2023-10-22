@@ -163,27 +163,37 @@ Name:       update_prev_get_next
 Purpose:    NOTICE: This function effectively combines and subsumes set_watched and get_unwatched.
             Update the watched attribute value of the video with passed filename based on the value of the passed attention flag,
             then return the filename of the video with lowest non-negative watched attribute value.
-Parameter:  STRING representing video filename, BOOL representing user's attention
+Parameter:  STRING representing video filename, INT (0 or 1) representing user's attention
 Return:     STRING representing video filename
 """
 def update_prev_get_next(previous_video, attention):
     db = get_db()
     cur = db.cursor()
 
-    #if attention flag is true, set the watched value of video with passed filename to -1
-    if attention:
+    #if attention flag is 1, set the watched value of video with passed filename to -1
+    if attention==1:
         cur.execute("UPDATE movies SET watched=-1 WHERE filename=?", (previous_video,))
     #else increment its watched value by 1
     else:
         cur.execute("UPDATE movies SET watched=watched+1 WHERE filename=?", (previous_video,))
+
+    #debug output
+    cur.execute("SELECT filename,watched FROM movies")
+    logger.debug("List of (filename, watched) follows:")
+    logger.debug(str(cur.fetchall()))
     
     #query and store the filename of the movie with the lowest non-negative watched value (tie goes to "lowest" filename)
-    cur.execute("SELECT filename FROM movies WHERE watched=(SELECT MIN(watched) FROM movies HAVING watched>-1) LIMIT 1")
-    next_video = cur.fetchone()[0]
+    cur.execute("SELECT filename FROM movies WHERE watched=(SELECT MIN(watched) FROM movies WHERE watched>-1) LIMIT 1")
+    temp = cur.fetchone()
 
-    cur.execute("SELECT filename,watched FROM movies")
-    logger.debug("List of (filename, watched value):")
-    logger.debug(str(cur.fetchall()))
+    #if the above query got no hits (all videos have been watched with attention), replay the previous video
+    if temp is None:
+        logger.debug("All videos have been watched with attention. Replaying previous.")
+        next_video=previous_video
+    #else will return the filename produced by the query
+    else:
+        logger.debug("Choosing a video from the queue.")
+        next_video = temp[0]
 
     db.commit()
     db.close()
