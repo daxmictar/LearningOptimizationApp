@@ -2,17 +2,25 @@ from flask import request, g
 from tools.logging import logger   
 from neurosdk.cmn_types import * 
 import random
-from db_test import set_watched, get_unwatched, get_tags, get_matching_videos
+from db_test import update_prev_get_next
 
 #Returns the next video based on the last video
 #For now just randomly selects a unwatched video
 #Next step is calculating a likely video based on watched videos tag history and video priority
 def get_next_video(previous_video: str):
+    """
     #set watched flag for previous video in db
     set_watched(previous_video)
     
     #get filename for next video
     next_video = get_unwatched(previous_video)
+    """
+
+    #change this value to affect how update_prev_get_next updates the watched value of previous video
+    attention = False
+
+    #update value of watched for previous video based on value of attention, and get filename for next video
+    next_video = (update_prev_get_next(previous_video, attention))
 
     return next_video
 
