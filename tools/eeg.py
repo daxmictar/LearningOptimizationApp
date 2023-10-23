@@ -5,8 +5,6 @@ from neurosdk.cmn_types import *
 
 from tools.logging import logger   
 
-from app import data_file
-
 # doing all this a the "module level" in "Demo" server mode it will work fine :)
 
 
@@ -15,6 +13,8 @@ def on_sensor_state_changed(sensor, state):
 
 
 def on_brain_bit_signal_data_received(sensor, data):
+    from app import data_file
+
     # prints the current data object, which should be a BrainBitSensorInfo
     # print(str(data) + '\n')
 
