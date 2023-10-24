@@ -32,6 +32,7 @@ FlaskJSON(app)
 global data_file
 data_file = {"file" : None}
 
+
 """
 #Set up watched videos
 global watched_videos
@@ -58,6 +59,7 @@ unwatched_videos = {
 }
 """
 
+
 #g is flask for a global var storage
 def init_new_env():
     #To connect to DB
@@ -70,11 +72,13 @@ def init_new_env():
     #g.secrets = get_secrets()
     #g.sms_client = get_sms_client()
 
+
 #This gets executed by default by the browser if no page is specified
 #So.. we redirect to the endpoint we want to load the base page
 @app.route('/') #endpoint
 def survey():
     return redirect('/static/survey.html')
+
 
 @app.route("/secure_api/<proc_name>",methods=['GET', 'POST'])
 @token_required
@@ -98,7 +102,6 @@ def exec_secure_proc(proc_name):
     
     print(resp)
     return resp
-
 
 
 @app.route("/open_api/<proc_name>",methods=['GET', 'POST'])

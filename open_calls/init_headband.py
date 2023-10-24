@@ -9,13 +9,16 @@ from tools.eeg import *
 
 
 # Attempts to set up a connection with the headband
-def setup_headband():
+def setup_headband() -> None:
+    logger.debug("Sensor Found Callback")
+    gl_scanner.sensorsChanged = sensorFound
     logger.debug("Start scan")
     gl_scanner.start()
 
 
 # Check if we have a connected headband
-def headband_is_connected():
+def is_headband_connected() -> bool:
+    logger.debug("Checking headband connection...")
     return g.hb != None # (g.hb in g)
 
 
@@ -23,11 +26,10 @@ def handle_request():
     # Attempt a headband setup
     setup_headband()
 
-    # TODO(DAX) create interactive step to find the proper headband after
-    # the button has been pressed to initialize the headband
+    logger.debug(f"Current Headband State = {g.hb}")
 
     # If we have a connected headband
-    if headband_is_connected():
+    if is_headband_connected():
         return ["Headband Connected"]
     
     # If we do not have a connected headband
