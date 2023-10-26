@@ -1,17 +1,23 @@
 import sqlite3
-from db_con import get_db
 from tools.logging import logger
 from functools import reduce
 
+def get_db():
+    return sqlite3.connect("local_data_base")
+
+def get_db_instance():  
+    db  = get_db()
+    cur  = db.cursor( )
+    return db, cur 
+
 """
 Name:       refresh_db
-Purpose:    drop and recreate the movies table with default values
+Purpose:    Drop and recreate the movies table with default values.
 Parameter:  none
 Return:     none
 """
 def refresh_db():
-    db = get_db()
-    cur = db.cursor()
+    db, cur = get_db_instance()
 
     #if movies table exists, drop it before (re)creation
     cur.execute("DROP TABLE IF EXISTS movies")
@@ -35,14 +41,13 @@ def refresh_db():
     db.close()
     
 """
-Name:       is_watched
-Purpose:    get the value of the watched attribute for the video with passed filename
-Parameter:  string representing video filename
-Return:     integer representing value of watched attribute
+Name:       getval_watched
+Purpose:    Get the value of the watched attribute for the video with passed filename.
+Parameter:  STRING representing video filename
+Return:     INTEGER representing value of watched attribute
 """
-def is_watched(movie):
-    db = get_db()
-    cur = db.cursor()
+def getval_watched(movie):
+    db, cur = get_db_instance()
     
     cur.execute("SELECT watched FROM movies WHERE filename=?", (movie,))
     watched = cur.fetchone()[0]
@@ -53,13 +58,13 @@ def is_watched(movie):
 
 """
 Name:       set_watched
-Purpose:    set the watched flag of the video with passed filename to -1
-Parameter:  string representing video filename
+Purpose:    NOTICE: This function is effectively subsumed by update_prev_get_next
+            Set the watched flag of the video with passed filename to -1.
+Parameter:  STRING representing video filename
 Return:     none
 """
 def set_watched(movie):
-    db = get_db()
-    cur = db.cursor()
+    db, cur = get_db_instance()
 
     #if watched flag is not already set on video with passed string as filename...
     cur.execute("SELECT watched FROM movies WHERE filename=?", (movie,))
@@ -69,8 +74,7 @@ def set_watched(movie):
         #set watched flag of video with passed filename to -1
         cur.execute("UPDATE movies SET watched=-1 WHERE filename=?", (movie,))
 
-    db.commit()
-
+    """
     #debug messages
     logger.debug("Unwatched videos:")
     cur.execute("SELECT filename FROM movies WHERE watched=0")
@@ -78,18 +82,20 @@ def set_watched(movie):
     logger.debug("Watched videos:")
     cur.execute("SELECT filename FROM movies WHERE watched=-1")
     logger.debug(str(cur.fetchall()))
+    """
 
+    db.commit()
     db.close()
 
 """
 Name:       get_unwatched
-Purpose:    get the filename of a random unwatched video
-Parameter:  string representing video filename
-Return:     string representing video filename
+Purpose:    NOTICE: This function is effectively subsumed by update_prev_get_next
+            Get the filename of a random unwatched video.
+Parameter:  STRING representing video filename
+Return:     STRING representing video filename
 """
 def get_unwatched(previous_video):
-    db = get_db()
-    cur = db.cursor()
+    db, cur = get_db_instance()
 
     #if there are any more unwatched videos, set next_video to the filename of a random unwatched video and return it
     cur.execute("SELECT COUNT(*) FROM movies WHERE watched=0")
@@ -110,13 +116,12 @@ def get_unwatched(previous_video):
     
 """
 Name:       get_tags
-Purpose:    get list of tags for video with passed filename
-Parameter:  string representing video filename
-Return:     list of strings representing tags
+Purpose:    Get list of tags for video with passed filename.
+Parameter:  STRING representing video filename
+Return:     LIST OF STRINGS representing tags
 """
 def get_tags(movie):
-    db = get_db()
-    cur = db.cursor()
+    db, cur = get_db_instance()
 
     cur.execute("SELECT tags FROM movies WHERE filename=?", (movie,))
     #split the result of the above query (string delimited by spaces) into a list of strings
@@ -128,14 +133,13 @@ def get_tags(movie):
 
 """
 Name:       get_matching_videos
-Purpose:    get a list of video filenames which match all of the tags in the passed list of tags
+Purpose:    Get a list of video filenames which match all of the tags in the passed list of tags.
             (currently does not discriminate by watched attribute value)
-Parameter:  list of strings representing tags
-Return:     list of strings representing video filenames
+Parameter:  LIST OF STRINGS representing tags
+Return:     LIST OF STRINGS representing video filenames
 """
 def get_matching_videos(tag_list):
-    db = get_db()
-    cur = db.cursor()
+    db, cur = get_db_instance()
     
     #initiate list of lists, where each list contains the results of a query for one tag
     superlist = []
@@ -154,3 +158,44 @@ def get_matching_videos(tag_list):
     match_list = list(reduce(lambda i, j: i & j, (set(x) for x in superlist)))
     
     return match_list
+
+"""
+Name:       update_prev_get_next
+Purpose:    NOTICE: This function effectively combines and subsumes set_watched and get_unwatched.
+            Update the watched attribute value of the video with passed filename based on the value of the passed attention flag,
+            then return the filename of the video with lowest non-negative watched attribute value.
+Parameter:  STRING representing video filename, INT (0 or 1) representing user's attention
+Return:     STRING representing video filename
+"""
+def update_prev_get_next(previous_video, attention):
+    db, cur = get_db_instance()
+
+    #if attention flag is 1, set the watched value of video with passed filename to -1
+    if attention==1:
+        cur.execute("UPDATE movies SET watched=-1 WHERE filename=?", (previous_video,))
+    #else increment its watched value by 1
+    else:
+        cur.execute("UPDATE movies SET watched=watched+1 WHERE filename=?", (previous_video,))
+
+    #debug output
+    cur.execute("SELECT filename,watched FROM movies")
+    logger.debug("List of (filename, watched) follows:")
+    logger.debug(str(cur.fetchall()))
+    
+    #query and store the filename of the movie with the lowest non-negative watched value (tie goes to "lowest" filename)
+    cur.execute("SELECT filename FROM movies WHERE watched=(SELECT MIN(watched) FROM movies WHERE watched>-1) LIMIT 1")
+    temp = cur.fetchone()
+
+    #if the above query got no hits (all videos have been watched with attention), replay the previous video
+    if temp is None:
+        logger.debug("All videos have been watched with attention. Replaying previous.")
+        next_video=previous_video
+    #else will return the filename produced by the query
+    else:
+        logger.debug("Choosing a video from the queue.")
+        next_video = temp[0]
+
+    db.commit()
+    db.close()
+
+    return next_video

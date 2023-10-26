@@ -9,10 +9,7 @@ import traceback
 
 from tools.eeg import get_head_band_sensor_object
 
-
-from db_con import get_db_instance, get_db
-
-from db_test import refresh_db
+from tools.database.db_lib import refresh_db
 
 from tools.token_required import token_required
 
@@ -60,10 +57,12 @@ unwatched_videos = {
 
 #g is flask for a global var storage
 def init_new_env():
+    """
     #To connect to DB
     if 'db' not in g:
         g.db = get_db()
-
+    """
+    
     if 'hb' not in g:
         g.hb = get_head_band_sensor_object()
 
