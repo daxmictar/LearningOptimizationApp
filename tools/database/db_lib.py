@@ -2,12 +2,24 @@ import sqlite3
 from tools.logging import logger
 from functools import reduce
 
+"""
+Name:       get_db
+Purpose:    Create and return a sqlite3 database connection.
+Parameter:  none
+Return:     sqlite.Connection
+"""
 def get_db():
     return sqlite3.connect("local_data_base")
 
+"""
+Name:       get_db_instance
+Purpose:    Create and return a sqlite3 database connection and a cursor for the connection to facilitate querying.
+Parameter:  none
+Return:     sqlite3.Connection, sqlite3.Cursor
+"""
 def get_db_instance():  
     db  = get_db()
-    cur  = db.cursor( )
+    cur  = db.cursor()
     return db, cur 
 
 """
@@ -42,7 +54,8 @@ def refresh_db():
     
 """
 Name:       getval_watched
-Purpose:    Get the value of the watched attribute for the video with passed filename.
+Purpose:    Get the value of the watched attribute for the video with passed filename. 
+            If no video with passed filename found, return -2.
 Parameter:  STRING representing video filename
 Return:     INTEGER representing value of watched attribute
 """
@@ -50,69 +63,16 @@ def getval_watched(movie):
     db, cur = get_db_instance()
     
     cur.execute("SELECT watched FROM movies WHERE filename=?", (movie,))
-    watched = cur.fetchone()[0]
+    temp = cur.fetchone()
+
+    if temp is None:
+        watched = -2
+    else:
+        watched = temp[0]
     
     db.close()
     
     return watched
-
-"""
-Name:       set_watched
-Purpose:    NOTICE: This function is effectively subsumed by update_prev_get_next
-            Set the watched flag of the video with passed filename to -1.
-Parameter:  STRING representing video filename
-Return:     none
-"""
-def set_watched(movie):
-    db, cur = get_db_instance()
-
-    #if watched flag is not already set on video with passed string as filename...
-    cur.execute("SELECT watched FROM movies WHERE filename=?", (movie,))
-    if cur.fetchone()!=(-1,):
-        logger.debug("Setting watched flag for " + movie)
-
-        #set watched flag of video with passed filename to -1
-        cur.execute("UPDATE movies SET watched=-1 WHERE filename=?", (movie,))
-
-    """
-    #debug messages
-    logger.debug("Unwatched videos:")
-    cur.execute("SELECT filename FROM movies WHERE watched=0")
-    logger.debug(str(cur.fetchall()))
-    logger.debug("Watched videos:")
-    cur.execute("SELECT filename FROM movies WHERE watched=-1")
-    logger.debug(str(cur.fetchall()))
-    """
-
-    db.commit()
-    db.close()
-
-"""
-Name:       get_unwatched
-Purpose:    NOTICE: This function is effectively subsumed by update_prev_get_next
-            Get the filename of a random unwatched video.
-Parameter:  STRING representing video filename
-Return:     STRING representing video filename
-"""
-def get_unwatched(previous_video):
-    db, cur = get_db_instance()
-
-    #if there are any more unwatched videos, set next_video to the filename of a random unwatched video and return it
-    cur.execute("SELECT COUNT(*) FROM movies WHERE watched=0")
-    if cur.fetchone()[0]>0:
-        cur.execute("SELECT filename FROM movies WHERE watched=0 ORDER BY random()") 
-        next_video = cur.fetchone()[0]
-        db.close()
-
-        logger.debug("Randomly selecting an unwatched video.")
-
-        return next_video
-    
-    #if no more unwatched videos, return the passed string (previous video filename)
-    else:
-        db.close()
-        logger.debug("No unwatched videos remain. Replaying previous.")
-        return previous_video
     
 """
 Name:       get_tags
@@ -199,3 +159,55 @@ def update_prev_get_next(previous_video, attention):
     db.close()
 
     return next_video
+
+"""
+Name:       set_watched
+Purpose:    NOTICE: This function is effectively subsumed by update_prev_get_next
+            Set the watched flag of the video with passed filename to -1.
+Parameter:  STRING representing video filename
+Return:     none
+"""
+"""
+def set_watched(movie):
+    db, cur = get_db_instance()
+
+    #if watched flag is not already set on video with passed string as filename...
+    cur.execute("SELECT watched FROM movies WHERE filename=?", (movie,))
+    if cur.fetchone()!=(-1,):
+        logger.debug("Setting watched flag for " + movie)
+
+        #set watched flag of video with passed filename to -1
+        cur.execute("UPDATE movies SET watched=-1 WHERE filename=?", (movie,))
+
+    db.commit()
+    db.close()
+"""
+
+"""
+Name:       get_unwatched
+Purpose:    NOTICE: This function is effectively subsumed by update_prev_get_next
+            Get the filename of a random unwatched video.
+Parameter:  STRING representing video filename
+Return:     STRING representing video filename
+"""
+"""
+def get_unwatched(previous_video):
+    db, cur = get_db_instance()
+
+    #if there are any more unwatched videos, set next_video to the filename of a random unwatched video and return it
+    cur.execute("SELECT COUNT(*) FROM movies WHERE watched=0")
+    if cur.fetchone()[0]>0:
+        cur.execute("SELECT filename FROM movies WHERE watched=0 ORDER BY random()") 
+        next_video = cur.fetchone()[0]
+        db.close()
+
+        logger.debug("Randomly selecting an unwatched video.")
+
+        return next_video
+    
+    #if no more unwatched videos, return the passed string (previous video filename)
+    else:
+        db.close()
+        logger.debug("No unwatched videos remain. Replaying previous.")
+        return previous_video
+"""
