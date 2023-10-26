@@ -1,7 +1,14 @@
 import sqlite3
-from db_con import get_db
 from tools.logging import logger
 from functools import reduce
+
+def get_db():
+    return sqlite3.connect("local_data_base")
+
+def get_db_instance():  
+    db  = get_db()
+    cur  = db.cursor( )
+    return db, cur 
 
 """
 Name:       refresh_db
@@ -10,8 +17,7 @@ Parameter:  none
 Return:     none
 """
 def refresh_db():
-    db = get_db()
-    cur = db.cursor()
+    db, cur = get_db_instance()
 
     #if movies table exists, drop it before (re)creation
     cur.execute("DROP TABLE IF EXISTS movies")
@@ -41,8 +47,7 @@ Parameter:  STRING representing video filename
 Return:     INTEGER representing value of watched attribute
 """
 def getval_watched(movie):
-    db = get_db()
-    cur = db.cursor()
+    db, cur = get_db_instance()
     
     cur.execute("SELECT watched FROM movies WHERE filename=?", (movie,))
     watched = cur.fetchone()[0]
@@ -59,8 +64,7 @@ Parameter:  STRING representing video filename
 Return:     none
 """
 def set_watched(movie):
-    db = get_db()
-    cur = db.cursor()
+    db, cur = get_db_instance()
 
     #if watched flag is not already set on video with passed string as filename...
     cur.execute("SELECT watched FROM movies WHERE filename=?", (movie,))
@@ -91,8 +95,7 @@ Parameter:  STRING representing video filename
 Return:     STRING representing video filename
 """
 def get_unwatched(previous_video):
-    db = get_db()
-    cur = db.cursor()
+    db, cur = get_db_instance()
 
     #if there are any more unwatched videos, set next_video to the filename of a random unwatched video and return it
     cur.execute("SELECT COUNT(*) FROM movies WHERE watched=0")
@@ -118,8 +121,7 @@ Parameter:  STRING representing video filename
 Return:     LIST OF STRINGS representing tags
 """
 def get_tags(movie):
-    db = get_db()
-    cur = db.cursor()
+    db, cur = get_db_instance()
 
     cur.execute("SELECT tags FROM movies WHERE filename=?", (movie,))
     #split the result of the above query (string delimited by spaces) into a list of strings
@@ -137,8 +139,7 @@ Parameter:  LIST OF STRINGS representing tags
 Return:     LIST OF STRINGS representing video filenames
 """
 def get_matching_videos(tag_list):
-    db = get_db()
-    cur = db.cursor()
+    db, cur = get_db_instance()
     
     #initiate list of lists, where each list contains the results of a query for one tag
     superlist = []
@@ -167,8 +168,7 @@ Parameter:  STRING representing video filename, INT (0 or 1) representing user's
 Return:     STRING representing video filename
 """
 def update_prev_get_next(previous_video, attention):
-    db = get_db()
-    cur = db.cursor()
+    db, cur = get_db_instance()
 
     #if attention flag is 1, set the watched value of video with passed filename to -1
     if attention==1:
