@@ -1,5 +1,6 @@
 from flask import request, g                                                                 
 from tools.logging import logger   
+from tools.headband import *
 from neurosdk.cmn_types import * 
 import random
 from tools.database.db_lib import update_prev_get_next
@@ -18,7 +19,7 @@ def get_next_video(previous_video: str):
 
 
 def handle_request(previous_video):
-    from app import data_file, headband
+    from app import data_file
     
     #Place holder for finding next video
     next_video = get_next_video(previous_video)
@@ -28,13 +29,13 @@ def handle_request(previous_video):
 
     #If there is no headband we stop here
     # if g.hb == None:
-    if headband == None:
+    if not is_headband_connected():
         #Send just the video name to the browser (May want to send more information later but for now working with this)
         return [next_video]
 
     #If there is a headband stop recieving data because no video is playing yet
     # g.hb.exec_command(SensorCommand.CommandStopSignal)
-    headband.exec_command(SensorCommand.CommandStopSignal)
+    stop_headband_signal()
 
     #close file based on video name
     data_file['file'].close()
