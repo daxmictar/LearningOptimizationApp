@@ -10,8 +10,6 @@ from tools.headband import *
 
 def handle_request():
     # Attempt a headband setup
-    setup_callback()
-
-    logger.debug(str(gl_scanner))
+    headband_setup_callback()
 
     return ["Begin headband initialization"]

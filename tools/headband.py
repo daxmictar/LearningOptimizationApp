@@ -8,18 +8,34 @@ hb = None
 
 logger.debug(f"headband handle initialized to {hb}")
 
-# Attempts to set up a connection with the headband
-def setup_callback() -> Scanner:
+def headband_setup() -> (Scanner, Sensor):
+    """
+        Initializes a scanner and a sensor object.
+        This function should be called first. 
+
+        Returns:
+            A valid scanner object
+    """
+    logger.debug("Creating local headband scanner and sensor")
+    scanner = Scanner([SensorFamily.SensorLEBrainBit])
+    sensor = None
+
+    return (scanner, sensor)
+
+
+def headband_setup_callback() -> None:
     """
         Initializes callback function to scan for headbands.
     """
+    if gl_scanner == None:
+        logger.debug("No gl_scanner found")
+        return
+
     logger.debug("Assigning sensor found callback")
     gl_scanner.sensorsChanged = sensorFound
 
-    return gl_scanner
 
-
-def start_headband_scanner() -> None:
+def headband_start_scanner() -> None:
     """
         Starts a scan for any headbands. Deleting is handled
         by the callback function. Should be called after setup_callback().
@@ -28,7 +44,7 @@ def start_headband_scanner() -> None:
     gl_scanner.start()
 
 
-def is_headband_connected() -> bool:
+def headband_is_connected() -> bool:
     """ 
     Checks headband connection status
 
@@ -39,7 +55,7 @@ def is_headband_connected() -> bool:
     return hb != None
 
 
-def start_headband_signal() -> bool:
+def headband_start_signal() -> bool:
     """ 
         Starts the current headband signal to cause data
         to flow.
@@ -47,7 +63,7 @@ def start_headband_signal() -> bool:
         Returns:
             True if a headband exists and could be started.
     """
-    if not is_headband_connected():
+    if not headband_is_connected():
         logger.debug("No headband available to start")
         return False
 
@@ -55,20 +71,17 @@ def start_headband_signal() -> bool:
     return True
 
 
-def stop_headband_signal() -> None:
+def headband_stop_signal() -> None:
     """ 
         Stops the current headband signal. 
 
         Returns:
             True if a headband exists and could be stopped.
     """
-    if not is_headband_connected():
+    if not headband_is_connected():
         logger.debug("No headband available to start")
         return False
 
     hb.exec_command(SensorCommand.CommandStopSignal)
     return True
 
-
-def get_head_band_sensor_object():
-    return gl_sensor

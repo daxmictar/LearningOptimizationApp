@@ -15,6 +15,7 @@ from tools.token_required import token_required
 #from tools.get_aws_secrets import get_secrets
 
 from tools.logging import logger
+from tools.eeg import * 
 from tools.headband import *
 
 ERROR_MSG = "Ooops.. Didn't work!"
@@ -87,8 +88,9 @@ def exec_secure_proc(proc_name):
 
     #setup the env
     # init_new_env()
-    if hb == None:
+    if not headband_is_connected:
         hb = get_head_band_sensor_object()
+        logger.debug(str(hb))
 
     #see if we can execute it..
     resp = ""
@@ -115,8 +117,9 @@ def exec_proc(proc_name):
     # reduced to just a headband existence check
     # init_new_env()
 
-    if hb == None:
+    if not headband_is_connected:
         hb = get_head_band_sensor_object()
+        logger.debug(str(hb))
 
     #see if we can execute it..
     resp = ""

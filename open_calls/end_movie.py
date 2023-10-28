@@ -29,13 +29,13 @@ def handle_request(previous_video):
 
     #If there is no headband we stop here
     # if g.hb == None:
-    if not is_headband_connected():
+    if not headband_is_connected():
         #Send just the video name to the browser (May want to send more information later but for now working with this)
         return [next_video]
 
     #If there is a headband stop recieving data because no video is playing yet
     # g.hb.exec_command(SensorCommand.CommandStopSignal)
-    stop_headband_signal()
+    headband_stop_signal()
 
     #close file based on video name
     data_file['file'].close()

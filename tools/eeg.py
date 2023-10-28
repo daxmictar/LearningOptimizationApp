@@ -23,8 +23,6 @@ def on_brain_bit_signal_data_received(sensor, data):
 logger.debug("Create Headband Scanner")
 gl_scanner = Scanner([SensorFamily.SensorLEBrainBit])
 gl_sensor = None
-
-
 def sensorFound(scanner, sensors):
     global gl_scanner
     global gl_sensor
@@ -38,3 +36,7 @@ def sensorFound(scanner, sensors):
         gl_scanner.stop()
         # TODO handle turning scanner back on if scanner disconnect
         del gl_scanner
+
+
+def get_head_band_sensor_object():
+    return gl_sensor

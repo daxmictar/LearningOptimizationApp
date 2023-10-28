@@ -8,7 +8,7 @@ def handle_request(video_name):
     from app import data_file
 
     #if g.hb == None:
-    if not is_headband_connected():
+    if not headband_is_connected():
         return ["No Headband"]
 
     #open file based on video name
@@ -16,7 +16,7 @@ def handle_request(video_name):
 
     #Start signal to get data from headband
     #g.hb.exec_command(SensorCommand.CommandStartSignal)
-    data_flow = start_headband_signal()
+    data_flow = headband_start_signal()
 
     logger.debug(f"Should data be flowing?: {data_flow}")
 

@@ -1,10 +1,10 @@
 from tools.logging import logger
-from tools.headband import start_headband_scanner, is_headband_connected
+from tools.headband import *
 from time import sleep
 
 def headband_status():
     # If we have a connected headband
-    if is_headband_connected():
+    if headband_is_connected():
         return ["Headband Connected"]
     
     # If we do not have a connected headband
@@ -16,7 +16,7 @@ def temp_handle_request():
 
     logger.debug(f"Initiated {seconds_to_wait} second wait for headband connection process")
 
-    start_headband_scanner()
+    headband_start_scanner()
 
     sleep(seconds_to_wait)
 
