@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Headband Initialize</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" 
+		     integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <p>
+        Currently waiting for headband to connect!
+    </p>
+
+<!-- Experimental CSS for the 'wait' phase of the page -->
+<style>
+    body { height: 100%; }
+    div#mask { cursor: wait; z-index: 999; height: 100%; width: 100%; }
+</style>
+
+<script>
+
+    // 30 seconds of time until we redirect to connection_failed.html
+    // with a 'retry' button
+    const TIMEOUT_TIME = 30 * 1000;
+
+    /* waits for 'delay' seconds */
+    const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay * 1000));
+
+    // If this promise succeeds, then it times out the current handband
+    // connection instance and redirects to a page to prompt the user to try
+    // the connection process again
+    function waitForTimeout(ms) {
+        return new Promise((_, reject) => {
+            setTimeout(() => reject(new Error("timeout succeeded")), ms);
+            window.location.href = "try_again.html";
+        });
+    }
+
+    // If this promise succeeds, then we redirect to index.html, at which point
+    // the headband has successfully connected
+    async function waitForHeadband() {
+        console.log("Headband connection successful!");
+        await sleep(10);
+        window.location.href = "index.html";
+    }
+
+    try {
+        const result = await Promise.race(
+            [waitForTimeout(TIMEOUT_TIME), waitForHeadband()]
+        );
+    } catch (err) { 
+        console.log("Race for timeout failed in <headband_wait.html>!")
+    }
+
+</script>
+
+</body>
+</html>

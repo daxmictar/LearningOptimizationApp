@@ -113,7 +113,7 @@ def exec_proc(proc_name):
     #see if we can execute it..
     resp = ""
     try:
-        fn = getattr(__import__('open_calls.'+proc_name), proc_name)
+        fn = getattr(__import__('open_calls.' + proc_name), proc_name)
         
         print(request.form)
 
@@ -129,12 +129,14 @@ def exec_proc(proc_name):
             case _:
                 #By default we pass nothing to the request
                 resp = fn.handle_request()
+
     except Exception as err:
         ex_data = str(Exception) + '\n'
         ex_data = ex_data + str(err) + '\n'
         ex_data = ex_data + traceback.format_exc()
         logger.error(ex_data)
         return json_response(status_=500 ,data=ERROR_MSG)
+
     print(resp)
 
     return resp

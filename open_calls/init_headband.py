@@ -9,9 +9,12 @@ from tools.eeg import *
 
 
 # Attempts to set up a connection with the headband
-def setup_headband() -> None:
+def setup_callback() -> None:
     logger.debug("Sensor Found Callback")
     gl_scanner.sensorsChanged = sensorFound
+
+
+def start_headband_scanner() -> None:
     logger.debug("Start scan")
     gl_scanner.start()
 
@@ -24,7 +27,9 @@ def is_headband_connected() -> bool:
 
 def handle_request():
     # Attempt a headband setup
-    setup_headband()
+    setup_callback()
+
+    start_headband_scanner()
 
     logger.debug(f"Current Headband State = {g.hb}")
 
