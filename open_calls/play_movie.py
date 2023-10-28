@@ -4,13 +4,11 @@ from neurosdk.cmn_types import *
 
 
 def handle_request(video_name):
-    from app import data_file
-    from app import headband
+    from app import data_file, headband
     logger.debug(f"headband from play_movie {headband}")
 
     #if g.hb == None:
     if headband == None:
-        #print("Data Flowing")
         return ["No Headband"]
 
     #open file based on video name

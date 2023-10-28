@@ -65,9 +65,12 @@ def init_new_env():
     if 'db' not in g:
         g.db = get_db()
     """
+
+    if headband == None:
+        headband = get_head_band_sensor_object()
     
-    if 'hb' not in g:
-        g.hb = get_head_band_sensor_object()
+    #if 'hb' not in g:
+    #    g.hb = get_head_band_sensor_object()
 
     #g.secrets = get_secrets()
     #g.sms_client = get_sms_client()
@@ -108,7 +111,8 @@ def exec_secure_proc(proc_name):
 def exec_proc(proc_name):
     logger.debug(f"Call to {proc_name}")
 
-    #setup the env
+    # setup the env
+    # reduced to just a headband existence check
     init_new_env()
 
     #see if we can execute it..

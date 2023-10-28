@@ -18,7 +18,7 @@ def get_next_video(previous_video: str):
 
 
 def handle_request(previous_video):
-    from app import data_file
+    from app import data_file, headband
     
     #Place holder for finding next video
     next_video = get_next_video(previous_video)
