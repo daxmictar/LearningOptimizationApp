@@ -28,7 +28,8 @@ FlaskJSON(app)
 
 global data_file
 data_file = {"file" : None}
-
+global headband
+headband = None
 
 """
 #Set up watched videos

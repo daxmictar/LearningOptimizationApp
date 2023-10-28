@@ -7,6 +7,8 @@ from neurosdk.sensor import Sensor
 from tools.logging import logger   
 from tools.eeg import *
 
+from app import headband
+
 
 # Attempts to set up a connection with the headband
 def setup_callback() -> None:
@@ -22,7 +24,8 @@ def start_headband_scanner() -> None:
 # Check if we have a connected headband
 def is_headband_connected() -> bool:
     logger.debug("Checking headband connection...")
-    return g.hb != None # (g.hb in g)
+    return headband != None
+    #return g.hb != None # (g.hb in g)
 
 
 def handle_request():
@@ -31,7 +34,8 @@ def handle_request():
 
     start_headband_scanner()
 
-    logger.debug(f"Current Headband State = {g.hb}")
+    # used to be g.hb
+    logger.debug(f"Current Headband State = {headband}")
 
     # If we have a connected headband
     if is_headband_connected():

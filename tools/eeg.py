@@ -37,6 +37,7 @@ def sensorFound(scanner, sensors):
         gl_sensor.connect()
         gl_sensor.signalDataReceived = on_brain_bit_signal_data_received
         gl_scanner.stop()
+        # TODO handle turning scanner back on if scanner disconnect
         del gl_scanner
 
 
