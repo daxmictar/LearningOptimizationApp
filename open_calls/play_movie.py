@@ -2,10 +2,14 @@ from flask import request, g
 from tools.logging import logger   
 from neurosdk.cmn_types import * 
 
+
 def handle_request(video_name):
     from app import data_file
+    from app import headband
+    logger.debug(f"headband from play_movie {headband}")
 
-    if g.hb == None:
+    #if g.hb == None:
+    if headband == None:
         #print("Data Flowing")
         return ["No Headband"]
 
@@ -13,7 +17,8 @@ def handle_request(video_name):
     data_file['file'] = open(video_name + ".txt", "w")
 
     #Start signal to get data from headband
-    g.hb.exec_command(SensorCommand.CommandStartSignal)
+    #g.hb.exec_command(SensorCommand.CommandStartSignal)
+    headband.exec_command(SensorCommand.CommandStartSignal)
 
     return ["Data Flowing"]
 

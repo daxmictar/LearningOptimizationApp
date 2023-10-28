@@ -9,7 +9,6 @@ import traceback
 
 from tools.eeg import get_head_band_sensor_object
 
-
 from db_con import get_db_instance, get_db
 
 from db_test import refresh_db
@@ -31,7 +30,8 @@ FlaskJSON(app)
 
 global data_file
 data_file = {"file" : None}
-
+global headband
+headband = None
 
 """
 #Set up watched videos
@@ -62,12 +62,19 @@ unwatched_videos = {
 
 #g is flask for a global var storage
 def init_new_env():
+    from app import headband
     #To connect to DB
     if 'db' not in g:
         g.db = get_db()
 
-    if 'hb' not in g:
-        g.hb = get_head_band_sensor_object()
+    if headband == None:
+        logger.debug("Assigning headband object from None")
+        headband = get_head_band_sensor_object()
+        logger.debug(f"headband state: {headband}")
+
+    # previous handle for global headband object
+    # if 'hb' not in g:
+    #     g.hb = get_head_band_sensor_object()
 
     #g.secrets = get_secrets()
     #g.sms_client = get_sms_client()

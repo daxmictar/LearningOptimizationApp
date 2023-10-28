@@ -12,6 +12,14 @@
 <button id="postButton">Initialize Headband</button>
 
 <script>
+    const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+    // TODO make ticket and add tyler and octavio to help for duration of class period on
+    // 10/25/23 from 7:00 PM - 8:22 PM   
+    const waitForHeadband = async () => {
+        await sleep(20000)
+        init_headband()
+    }
+
     function init_headband(){
         $.post("/open_api/init_headband", { "data":"somedata", "any":"data"},
             function(data, textStatus) {
@@ -28,7 +36,7 @@
             console.log(response);});
     }
 
-    document.getElementById('postButton').addEventListener('click', init_headband);
+    document.getElementById('postButton').addEventListener('click', waitForHeadband);
 </script>
 
 </body>

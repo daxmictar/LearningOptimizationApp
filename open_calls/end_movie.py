@@ -3,6 +3,7 @@ from tools.logging import logger
 from neurosdk.cmn_types import * 
 import random
 from db_test import set_watched, get_unwatched, get_tags, get_matching_videos
+from app import headband
 
 #Returns the next video based on the last video
 #For now just randomly selects a unwatched video
@@ -27,12 +28,14 @@ def handle_request(previous_video):
     logger.debug("Previous Video: " + previous_video + "\t" + "Next Video: " + next_video)
 
     #If there is no headband we stop here
-    if g.hb == None:
+    # if g.hb == None:
+    if headband == None:
         #Send just the video name to the browser (May want to send more information later but for now working with this)
         return [next_video]
 
     #If there is a headband stop recieving data because no video is playing yet
-    g.hb.exec_command(SensorCommand.CommandStopSignal)
+    # g.hb.exec_command(SensorCommand.CommandStopSignal)
+    headband.exec_command(SensorCommand.CommandStopSignal)
 
     #close file based on video name
     data_file['file'].close()
