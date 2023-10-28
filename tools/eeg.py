@@ -7,7 +7,6 @@ from tools.logging import logger
 
 # doing all this a the "module level" in "Demo" server mode it will work fine :)
 
-
 def on_sensor_state_changed(sensor, state):
     logger.debug(f"Sensor {sensor.name} is {state}")
 
@@ -39,8 +38,3 @@ def sensorFound(scanner, sensors):
         gl_scanner.stop()
         # TODO handle turning scanner back on if scanner disconnect
         del gl_scanner
-
-
-def get_head_band_sensor_object():
-    return gl_sensor
-

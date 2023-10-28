@@ -7,8 +7,6 @@ import datetime
 import bcrypt
 import traceback
 
-from tools.eeg import get_head_band_sensor_object
-
 from tools.database.db_lib import refresh_db
 
 from tools.token_required import token_required
@@ -17,6 +15,7 @@ from tools.token_required import token_required
 #from tools.get_aws_secrets import get_secrets
 
 from tools.logging import logger
+from tools.headband import *
 
 ERROR_MSG = "Ooops.. Didn't work!"
 
@@ -28,8 +27,6 @@ FlaskJSON(app)
 
 global data_file
 data_file = {"file" : None}
-global headband
-headband = None
 
 """
 #Set up watched videos
@@ -57,14 +54,14 @@ unwatched_videos = {
 }
 """
 
-
+"""
 #g is flask for a global var storage
 def init_new_env():
-    """
+    
     #To connect to DB
     if 'db' not in g:
         g.db = get_db()
-    """
+    
 
     if headband == None:
         headband = get_head_band_sensor_object()
@@ -74,7 +71,7 @@ def init_new_env():
 
     #g.secrets = get_secrets()
     #g.sms_client = get_sms_client()
-
+"""
 
 #This gets executed by default by the browser if no page is specified
 #So.. we redirect to the endpoint we want to load the base page
@@ -89,7 +86,9 @@ def exec_secure_proc(proc_name):
     logger.debug(f"Secure Call to {proc_name}")
 
     #setup the env
-    init_new_env()
+    # init_new_env()
+    if hb == None:
+        hb = get_head_band_sensor_object()
 
     #see if we can execute it..
     resp = ""
@@ -109,11 +108,15 @@ def exec_secure_proc(proc_name):
 
 @app.route("/open_api/<proc_name>",methods=['GET', 'POST'])
 def exec_proc(proc_name):
+    from tools.headband import hb
     logger.debug(f"Call to {proc_name}")
 
     # setup the env
     # reduced to just a headband existence check
-    init_new_env()
+    # init_new_env()
+
+    if hb == None:
+        hb = get_head_band_sensor_object()
 
     #see if we can execute it..
     resp = ""

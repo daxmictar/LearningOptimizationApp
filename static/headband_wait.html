@@ -50,9 +50,13 @@
         const result = await Promise.race(
             [waitForTimeout(TIMEOUT_TIME), waitForHeadband()]
         );
+
+
     } catch (err) { 
         console.log("Race for timeout failed in <headband_wait.html>!")
     }
+
+    // TODO set up post request for headband_wait stage
 
 </script>
 

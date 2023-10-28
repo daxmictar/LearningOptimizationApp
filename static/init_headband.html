@@ -14,10 +14,10 @@
 <script>
 
     function beginScanForHeadband() {
-        $.post("/open_api/init_headband", { "data":"somedata", "any":"data"},
+        $.post("/open_api/init_headband", { "data" : "signal to start headband connection process" },
             (data, textStatus) => {
                 //this gets called when browser receives response from server
-                console.log(data);
+                console.log(data['data']);
 
                 // send post to init_headband to begin scanning process
                 console.log("starting scan");
