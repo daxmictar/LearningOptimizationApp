@@ -46,9 +46,8 @@
         window.location.href = "index.html";
     }
 
-
     // TODO set up post request for headband_wait stage
-    $.post("open_api/headband_wait", { "success" : " " },
+    $.post("/open_api/headband_wait", { "data" : "initiated headband wait" },
         (data, textStatus) => {
 
             console.log(data);
@@ -62,7 +61,7 @@
             result.then(response => console.log(result));
             result.catch(error => console.log(error));
             
-        }).fail((response) => { console.log(reponse) });
+        }).fail((response) => { console.log(response) });
 
 </script>
 

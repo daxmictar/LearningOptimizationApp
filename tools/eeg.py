@@ -18,9 +18,9 @@ def on_brain_bit_signal_data_received(sensor, data):
     # logger.debug(data)
 
 
-logger.debug("Create Headband Scanner")
-gl_scanner = Scanner([SensorFamily.SensorLEBrainBit])
-gl_sensor = None
+#logger.debug("Create Headband Scanner")
+#gl_scanner = Scanner([SensorFamily.SensorLEBrainBit])
+#gl_sensor = None
 def sensorFound(scanner, sensors):
     global gl_scanner
     global gl_sensor

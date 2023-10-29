@@ -3,18 +3,10 @@ from tools.headband import *
 from time import sleep
 import concurrent.futures
 
+
 def sensor_found_callback(scanner, sensors):
         for i in range(len(sensors)):
             print(f"Sensor found {sensors[i]}")
-
-
-def headband_status():
-    # If we have a connected headband
-    if headband_is_connected():
-        return ["Headband Connected"]
-    
-    # If we do not have a connected headband
-    return ["No Headband Connected"]
 
 
 def headband_connection_process():
@@ -58,10 +50,15 @@ def headband_connection_process():
     logger.debug("Scanner process complete")
     del scanner
 
-    headband_init_sensor(sensor)
+    sensor = headband_init_sensor(sensor)
+
+    return sensor
 
 
 def handle_request():
-    headband_connection_process()
+    sensor = headband_connection_process()
+
+    if sensor != None:
+        return ["Headband is connected"]
     
-    return headband_status()
+    return ["Headband is not connected"] 
