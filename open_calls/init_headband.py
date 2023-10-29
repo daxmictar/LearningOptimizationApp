@@ -9,7 +9,4 @@ from tools.headband import *
 
 
 def handle_request():
-    # Attempt a headband setup
-    headband_setup_callback()
-
     return ["Begin headband initialization"]

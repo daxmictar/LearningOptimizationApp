@@ -110,7 +110,6 @@ def exec_secure_proc(proc_name):
 
 @app.route("/open_api/<proc_name>",methods=['GET', 'POST'])
 def exec_proc(proc_name):
-    from tools.headband import hb
     logger.debug(f"Call to {proc_name}")
 
     # setup the env

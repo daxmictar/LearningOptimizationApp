@@ -4,9 +4,6 @@ from typing import Callable
 
 # utility interface for handling the headband
 
-logger.debug(f"headband handle initialized to {hb}")
-
-
 def headband_init_scanner() -> Scanner:
     """
         Initializes a scanner and a sensor object.
@@ -40,7 +37,7 @@ def headband_init_sensor(sensor: Sensor) -> Sensor:
     return hb
 
 
-def headband_setup_callback(scanner: Scanner, callback: Callable[[Scanner, list[Sensor]]]) -> Scanner:
+def headband_setup_callback(scanner: Scanner, callback: Callable[[Scanner, list[Sensor]], None]) -> Scanner:
     """
         Initializes callback function to scan for headbands.
 
