@@ -12,8 +12,6 @@ def on_sensor_state_changed(sensor, state):
 
 
 def on_brain_bit_signal_data_received(sensor, data):
-    from app import data_file
-
     # prints the current data object, which should be a BrainBitSensorInfo
     print(f"{data}\n")
 

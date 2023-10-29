@@ -1,47 +1,60 @@
 from tools.eeg import *
 from tools.logging import logger
+from typing import Callable
 
 # utility interface for handling the headband
 
-global hb
-hb = None
-
 logger.debug(f"headband handle initialized to {hb}")
 
-def headband_setup() -> (Scanner, Sensor):
+
+def headband_init_scanner() -> Scanner:
     """
         Initializes a scanner and a sensor object.
         This function should be called first. 
 
         Returns:
-            A valid scanner object
+            A valid scanner object that scans for a BrainBit sensor
     """
-    logger.debug("Creating local headband scanner and sensor")
+    logger.debug("Creating local headband scanner")
+
     scanner = Scanner([SensorFamily.SensorLEBrainBit])
-    sensor = None
 
-    return (scanner, sensor)
+    return scanner
 
 
-def headband_setup_callback() -> None:
+def headband_init_sensor(sensor: Sensor) -> Sensor:
+    """
+        Passes an argument to the global headband variable.
+
+        Returns:
+            The global sensor object.
+    """
+    if sensor == None:
+        logger.debug(f"Passed None to headband init")
+        return None
+
+    global hb
+
+    hb: Sensor = sensor
+
+    return hb
+
+
+def headband_setup_callback(scanner: Scanner, callback: Callable[[Scanner, list[Sensor]]]) -> Scanner:
     """
         Initializes callback function to scan for headbands.
+
+        Returns:
+            The object with the callback added.
     """
-    if gl_scanner == None:
-        logger.debug("No gl_scanner found")
+    if scanner == None:
+        logger.debug("Passed an empty scanner object as an argument")
         return
 
     logger.debug("Assigning sensor found callback")
-    gl_scanner.sensorsChanged = sensorFound
+    scanner.sensorsChanged = callback
 
-
-def headband_start_scanner() -> None:
-    """
-        Starts a scan for any headbands. Deleting is handled
-        by the callback function. Should be called after setup_callback().
-    """
-    logger.debug("Starting scan")
-    gl_scanner.start()
+    return scanner
 
 
 def headband_is_connected() -> bool:
@@ -71,7 +84,7 @@ def headband_start_signal() -> bool:
     return True
 
 
-def headband_stop_signal() -> None:
+def headband_stop_signal() -> bool:
     """ 
         Stops the current headband signal. 
 
@@ -85,3 +98,6 @@ def headband_stop_signal() -> None:
     hb.exec_command(SensorCommand.CommandStopSignal)
     return True
 
+
+def headband_get_sensor():
+    return hb

@@ -21,9 +21,9 @@
 
 <script>
 
-    // 30 seconds of time until we redirect to connection_failed.html
+    // seconds of time until we redirect to connection_failed.html
     // with a 'retry' button
-    const TIMEOUT_TIME = 30 * 1000;
+    const TIMEOUT_TIME = 15 * 1000;
 
     /* waits for 'delay' seconds */
     const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay * 1000));
@@ -46,17 +46,23 @@
         window.location.href = "index.html";
     }
 
-    try {
-        const result = await Promise.race(
-            [waitForTimeout(TIMEOUT_TIME), waitForHeadband()]
-        );
-
-
-    } catch (err) { 
-        console.log("Race for timeout failed in <headband_wait.html>!")
-    }
 
     // TODO set up post request for headband_wait stage
+    $.post("open_api/headband_wait", { "success" : " " },
+        (data, textStatus) => {
+
+            console.log(data);
+            console.log(textStatus);
+
+            const result = Promise.race([
+                waitForTimeout(TIMEOUT_TIME),
+                waitForHeadband()
+            ]);
+            
+            result.then(response => console.log(result));
+            result.catch(error => console.log(error));
+            
+        }).fail((response) => { console.log(reponse) });
 
 </script>
 
