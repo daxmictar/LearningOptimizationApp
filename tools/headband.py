@@ -35,7 +35,7 @@ def headband_init_sensor(sensor: Sensor) -> Sensor:
 
     global hb
 
-    hb: Sensor = sensor
+    hb = sensor
 
     return hb
 
@@ -92,7 +92,7 @@ def headband_stop_signal() -> bool:
             True if a headband exists and could be stopped.
     """
     if not headband_is_connected():
-        logger.debug("No headband available to start")
+        logger.debug("No headband available to stop")
         return False
 
     hb.exec_command(SensorCommand.CommandStopSignal)
