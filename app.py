@@ -147,10 +147,13 @@ def exec_proc(proc_name):
         logger.error(ex_data)
         return json_response(status_=500 ,data=ERROR_MSG)
 
-    print(resp)
+    # for debug purposes because of logger overlap
+    from time import sleep
+    sleep(0.5)
+    
+    logger.debug(f"{resp}")
 
     return resp
-
 
 if __name__ == '__main__':
     refresh_db()
