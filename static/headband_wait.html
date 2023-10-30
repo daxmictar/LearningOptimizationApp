@@ -11,13 +11,11 @@
 <body>
     <p>
         Currently waiting for headband to connect!
+        <br><br>
+        Keep the headband nearby, so as to not lose connection!
+        <br><br>
+        Check if the battery is charged.
     </p>
-
-<!-- Experimental CSS for the 'wait' phase of the page -->
-<style>
-    body { height: 100%; }
-    div#mask { cursor: wait; z-index: 999; height: 100%; width: 100%; }
-</style>
 
 <script>
 
@@ -41,7 +39,7 @@
     // If this promise succeeds, then we redirect to index.html, at which point
     // the headband has successfully connected
     function waitForHeadband() {
-        console.log("Headband connection successful!");
+        console.log("Waiting for headband complete");
     }
 
     // TODO set up post request for headband_wait stage

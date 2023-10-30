@@ -4,9 +4,8 @@ from time import sleep
 import concurrent.futures
 
 
-def sensor_found_callback(scanner, sensors):
-        for i in range(len(sensors)):
-            print(f"Sensor found {sensors[i]}")
+def on_sensor_state_changed(sensor, state):
+    logger.debug(f"object {sensor} named -> {sensor.name} is {state}")
 
 
 def headband_connection_process():
@@ -15,10 +14,11 @@ def headband_connection_process():
 
     # use wrapper function to create a new scanner
     scanner: Scanner = headband_init_scanner()
+    logger.debug(f"Created headband scanner object {scanner}")
 
     # add a callback using wrapper function to show when a sensor has been found
     # it returns the same object passed as an argument but with the callback added
-    scanner = headband_setup_callback(scanner, sensor_found_callback)
+    scanner.sensorsChanged = on_sensor_state_changed
 
     # scan and wait for n seconds to fill the sensor list
     scanner.start()
@@ -29,6 +29,7 @@ def headband_connection_process():
 
     # use the scanner to create a sensor
     def connect_headband_sensor(info):
+        logger.debug(f"Creating sensor with {info}")
         return scanner.create_sensor(info)
 
     # go through each of the sensors acquired from the scan    
@@ -42,15 +43,17 @@ def headband_connection_process():
             with concurrent.futures.ThreadPoolExecutor() as exec:
                 future = exec.submit(connect_headband_sensor, current_sensor_info)
                 sensor = future.result()
+    else:
+        num_sensors = len(sensor_info)
+        logger.debug(f"No sensors found, sensors() list is {num_sensors}")
             
-    logger.debug(f"Sensor connection established {str(sensor)}")
-    
     # get rid of the current scanner object
     # must redo this request to create a new scanner and reconnect
-    logger.debug("Scanner process complete")
     del scanner
 
     sensor = headband_init_sensor(sensor)
+    if sensor != None:
+        logger.debug(f"Sensor connection established {str(sensor)}")
 
     return sensor
 

@@ -27,7 +27,7 @@ def headband_init_sensor(sensor: Sensor) -> Sensor:
             The global sensor object.
     """
     if sensor == None:
-        logger.debug(f"Passed None to headband init")
+        #logger.debug(f"Passed None to headband init")
         return None
 
     global hb
