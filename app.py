@@ -7,8 +7,6 @@ import datetime
 import bcrypt
 import traceback
 
-from tools.eeg import get_head_band_sensor_object
-
 from tools.database.db_lib import refresh_db
 
 from tools.token_required import token_required
@@ -17,6 +15,8 @@ from tools.token_required import token_required
 #from tools.get_aws_secrets import get_secrets
 
 from tools.logging import logger
+from tools.eeg import * 
+from tools.headband import *
 
 ERROR_MSG = "Ooops.. Didn't work!"
 
@@ -55,19 +55,24 @@ unwatched_videos = {
 }
 """
 
+"""
 #g is flask for a global var storage
 def init_new_env():
-    """
+    
     #To connect to DB
     if 'db' not in g:
         g.db = get_db()
-    """
     
-    if 'hb' not in g:
-        g.hb = get_head_band_sensor_object()
+
+    if headband == None:
+        headband = get_head_band_sensor_object()
+    
+    #if 'hb' not in g:
+    #    g.hb = get_head_band_sensor_object()
 
     #g.secrets = get_secrets()
     #g.sms_client = get_sms_client()
+"""
 
 #This gets executed by default by the browser if no page is specified
 #So.. we redirect to the endpoint we want to load the base page
@@ -75,13 +80,17 @@ def init_new_env():
 def survey():
     return redirect('/static/survey.html')
 
+
 @app.route("/secure_api/<proc_name>",methods=['GET', 'POST'])
 @token_required
 def exec_secure_proc(proc_name):
     logger.debug(f"Secure Call to {proc_name}")
 
     #setup the env
-    init_new_env()
+    # init_new_env()
+    if not headband_is_connected:
+        hb = get_head_band_sensor_object()
+        logger.debug(str(hb))
 
     #see if we can execute it..
     resp = ""
@@ -99,18 +108,22 @@ def exec_secure_proc(proc_name):
     return resp
 
 
-
 @app.route("/open_api/<proc_name>",methods=['GET', 'POST'])
 def exec_proc(proc_name):
     logger.debug(f"Call to {proc_name}")
 
-    #setup the env
-    init_new_env()
+    # setup the env
+    # reduced to just a headband existence check
+    # init_new_env()
+
+    if not headband_is_connected:
+        hb = get_head_band_sensor_object()
+        logger.debug(str(hb))
 
     #see if we can execute it..
     resp = ""
     try:
-        fn = getattr(__import__('open_calls.'+proc_name), proc_name)
+        fn = getattr(__import__('open_calls.' + proc_name), proc_name)
         
         print(request.form)
 
@@ -126,16 +139,21 @@ def exec_proc(proc_name):
             case _:
                 #By default we pass nothing to the request
                 resp = fn.handle_request()
+
     except Exception as err:
         ex_data = str(Exception) + '\n'
         ex_data = ex_data + str(err) + '\n'
         ex_data = ex_data + traceback.format_exc()
         logger.error(ex_data)
         return json_response(status_=500 ,data=ERROR_MSG)
-    print(resp)
+
+    # for debug purposes because of logger overlap
+    from time import sleep
+    sleep(0.5)
+    
+    logger.debug(f"{resp}")
 
     return resp
-
 
 if __name__ == '__main__':
     refresh_db()
