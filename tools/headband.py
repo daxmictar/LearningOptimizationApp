@@ -22,17 +22,20 @@ def headband_init_scanner() -> Scanner:
 def headband_init_sensor(sensor: Sensor) -> Sensor:
     """
         Passes an argument to the global headband variable.
+        Initializes the global var by default but it must be 
+        called before any other functions with hb as a dependency.
 
         Returns:
             The global sensor object.
     """
-    if sensor == None:
-        #logger.debug(f"Passed None to headband init")
-        return None
-
+    # initialize the global var by default
+    # but this function must be called
     global hb
 
-    hb = sensor
+    if sensor == None:
+        hb = None
+    else:
+        hb = sensor
 
     return hb
 

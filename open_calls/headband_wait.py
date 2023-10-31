@@ -7,6 +7,9 @@ import concurrent.futures
 def on_sensor_state_changed(sensor, state):
     logger.debug(f"object {sensor} named -> {sensor.name} is {state}")
 
+def on_brain_bit_signal_data_received(sensor, data):
+    # prints the current data object, which should be a BrainBitSensorInfo
+    logger.debug(f"{data}\n")
 
 def headband_connection_process():
     """ for debug/testing purposes """
@@ -16,8 +19,7 @@ def headband_connection_process():
     scanner: Scanner = headband_init_scanner()
     logger.debug(f"Created headband scanner object {scanner}")
 
-    # add a callback using wrapper function to show when a sensor has been found
-    # it returns the same object passed as an argument but with the callback added
+    # add a callback to show when a sensor has been found
     scanner.sensorsChanged = on_sensor_state_changed
 
     # scan and wait for n seconds to fill the sensor list
@@ -52,11 +54,15 @@ def headband_connection_process():
     del scanner
 
     sensor = headband_init_sensor(sensor)
+
+    sensor.sensorStateChanged = on_sensor_state_changed
+    sensor.connect()
+    sensor.signalDataReceived = on_brain_bit_signal_data_received
+
     if sensor != None:
         logger.debug(f"Sensor connection established {str(sensor)}")
 
     return sensor
-
 
 def handle_request():
     sensor = headband_connection_process()

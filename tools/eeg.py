@@ -13,9 +13,7 @@ def on_sensor_state_changed(sensor, state):
 
 def on_brain_bit_signal_data_received(sensor, data):
     # prints the current data object, which should be a BrainBitSensorInfo
-    print(f"{data}\n")
-
-    # logger.debug(data)
+    logger.debug(f"{data}\n")
 
 
 #logger.debug("Create Headband Scanner")
