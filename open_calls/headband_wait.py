@@ -23,9 +23,18 @@ def on_battery_changed(sensor, battery):
     logger.debug(f"Battery: {battery}%")
 
 
-def headband_connection_process():
-    """ for debug/testing purposes """
-    seconds_to_scan_for = 5
+def headband_connection_process(seconds: float) -> Sensor | None:
+    """ 
+        Engages the headband connection process, which creates local scanner
+        and scans for headbands. After the wait, scan through the list of all 
+        sensos found. If there is a sensor object, connect to it and pass it
+        to the global state of headband.py, from where it can be kept until 
+        the current session is ended.
+
+        Returns:
+            A Sensor object if a connection has been made, otherwise None
+    """
+    scan_time = seconds
 
     # use wrapper function to create a new scanner
     scanner: Scanner = headband_init_scanner()
@@ -35,9 +44,9 @@ def headband_connection_process():
 
     # scan and wait for n seconds to fill the sensor list
     scanner.start()
-    logger.debug(f"Initiated {seconds_to_scan_for} second wait for headband connection process")
-    sleep(seconds_to_scan_for)
-    logger.debug(f"Waited for {seconds_to_scan_for} seconds")
+    logger.debug(f"Initiated {scan_time} second wait for headband connection process")
+    sleep(scan_time)
+    logger.debug(f"Scanned for {scan_time} seconds")
     scanner.stop()
 
     # use the scanner to create a sensor
@@ -76,7 +85,7 @@ def headband_connection_process():
     return sensor
 
 def handle_request():
-    sensor = headband_connection_process()
+    sensor = headband_connection_process(5.0)
 
     if sensor != None:
         return ["Headband is connected"]
