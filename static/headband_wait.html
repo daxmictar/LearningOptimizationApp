@@ -18,29 +18,29 @@
             Check if the battery is charged.
         </p>
     </center>
-<script>
+    <script>
 
-    // seconds of time until we redirect to connection_failed.html
-    // with a 'retry' button
-    const TIMEOUT_TIME = 15 * 1000;
+        // seconds of time until we redirect to connection_failed.html
+        // with a 'retry' button
+        const DELAY = 5;
 
-    /* waits for 'delay' seconds */
-    const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay * 1000));
+        // waits for 'delay' seconds
+        const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay * 1000));
 
-    $.post("/open_api/headband_wait", { "data" : "initiated headband wait" },
-        (data, textStatus) => {
-            sleep(5);
+        $.post("/open_api/headband_wait", { "data" : "initiated headband wait" },
+            (data, textStatus) => {
+                sleep(DELAY);
 
-            console.log(data[0]);
+                console.log(data[0]);
 
-            if (data[0] == "Headband is connected") {
-                window.location.href = "index.html";
-            } else {
-                window.location.href = "try_again.html";
-            }
-        }).fail((response) => { console.log(response) });
+                // either "Headband is connected" or "Headband is not connected"
+                if (data[0] == "Headband is connected") {
+                    window.location.href = "index.html";
+                } else {
+                    window.location.href = "try_again.html";
+                }
+            }).fail((response) => { console.log(response) });
 
-</script>
-
+    </script>
 </body>
 </html>
