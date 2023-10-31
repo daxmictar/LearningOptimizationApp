@@ -55,11 +55,10 @@ def headband_connection_process():
 
     sensor = headband_init_sensor(sensor)
 
-    sensor.sensorStateChanged = on_sensor_state_changed
-    sensor.connect()
-    sensor.signalDataReceived = on_brain_bit_signal_data_received
-
     if sensor != None:
+        sensor.sensorStateChanged = on_sensor_state_changed
+        sensor.connect()
+        sensor.signalDataReceived = on_brain_bit_signal_data_received
         logger.debug(f"Sensor connection established {str(sensor)}")
 
     return sensor
