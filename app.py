@@ -132,7 +132,7 @@ def exec_proc(proc_name):
             case "end_movie":
                 #For the end movie event we pass back {data : previous_video} 
                 resp = fn.handle_request(request.form['data'])
-            case "submit_survey":
+            case "submit_survey" | "submit_post_video_survey":
                 resp = fn.handle_request(request.form)
             case "play_movie":
                 resp = fn.handle_request(request.form['data'])

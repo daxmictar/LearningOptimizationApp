@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Headband Initialize</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" 
+		     integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <center>
+        <p>
+            <h1>Session Summary:</h1>
+        </p>
+
+        <button id="refreshButton">Refresh Session</button>
+        <button id="logOutButton">Log Out</button>
+    </center>
+<script>
+
+    function refreshSession (sender) {
+        //Send over the form data
+        $.post("/open_api/refresh_session", data_object,
+            function(data, textStatus) {
+                //Gets called when browser recieves response from server
+                console.log("DATA: ");
+                console.log(data);
+
+                //Redirect to index page upon server response from survey
+                window.location.href = 'index.html';
+            }, "json").fail(function(response){
+                console.log("Error");
+                console.log(response);
+            });
+    }
+
+    function logOut (sender) {
+        //Send over the form data
+        $.post("/open_api/log_out", data_object,
+            function(data, textStatus) {
+                //Gets called when browser recieves response from server
+                console.log("DATA: ");
+                console.log(data);
+
+                //Redirect to index page upon server response from survey
+                window.location.href = 'log_in.html';
+            }, "json").fail(function(response){
+                console.log("Error");
+                console.log(response);
+            });
+    }
+
+    document
+    .getElementById('refreshButton')
+    .addEventListener('click', refreshSession);
+
+    document
+    .getElementById('logOutButton')
+    .addEventListener('click', logOut);
+</script>
+
+</body>
+</html>
