@@ -1,26 +1,37 @@
+from time import sleep
+
 from tools.logging import logger
 from tools.headband import *
-from time import sleep
-import concurrent.futures
+
+
+def on_sensor_found(scanner, sensors):
+    logger.debug(f"Using {scanner} to scan")
+    for i in range(len(sensors)):
+        logger.debug(f"Sensor found {sensors[i]}")
 
 
 def on_sensor_state_changed(sensor, state):
-    logger.debug(f"object {sensor} named -> {sensor.name} is {state}")
+    logger.debug(f"Sensor {sensor} is {state}")
 
-def on_brain_bit_signal_data_received(sensor, data):
+
+def on_signal_data_received(sensor, data):
     # prints the current data object, which should be a BrainBitSensorInfo
-    logger.debug(f"{data}\n")
+    logger.debug(f"{data} from {sensor}\n")
+
+
+def on_battery_changed(sensor, battery):
+    logger.debug(f"Battery: {battery}%")
+
 
 def headband_connection_process():
     """ for debug/testing purposes """
-    seconds_to_scan_for = 10
+    seconds_to_scan_for = 5
 
     # use wrapper function to create a new scanner
     scanner: Scanner = headband_init_scanner()
-    logger.debug(f"Created headband scanner object {scanner}")
 
     # add a callback to show when a sensor has been found
-    scanner.sensorsChanged = on_sensor_state_changed
+    scanner.sensorsChanged = on_sensor_found
 
     # scan and wait for n seconds to fill the sensor list
     scanner.start()
@@ -35,31 +46,32 @@ def headband_connection_process():
         return scanner.create_sensor(info)
 
     # go through each of the sensors acquired from the scan    
-    sensor_info = scanner.sensors()
-    sensor = None
-    if len(sensor_info) > 0:
-        for i in range(len(sensor_info)):
-            current_sensor_info = sensor_info[i]
-            logger.debug(f"Currently scanning {current_sensor_info}")
+    sensors = scanner.sensors()
+    num_sensors = len(sensors)
+    logger.debug(f"sensors() list is size of {num_sensors}")
 
-            with concurrent.futures.ThreadPoolExecutor() as exec:
-                future = exec.submit(connect_headband_sensor, current_sensor_info)
-                sensor = future.result()
-    else:
-        num_sensors = len(sensor_info)
-        logger.debug(f"No sensors found, sensors() list is {num_sensors}")
+    sensor = None
+    # list must have at least one sensor to attempt connection
+    if len(sensors) > 0: 
+        for i in range(len(sensors)):
+            current_sensor = sensors[i]
+            logger.debug(f"Currently scanning {current_sensor}")
+            sensor = connect_headband_sensor(current_sensor) 
             
     # get rid of the current scanner object
     # must redo this request to create a new scanner and reconnect
     del scanner
 
+    # pass the state of the sensor object to the headband.py module
+    # and then pass it back, could be None OR a valid Sensor object
     sensor = headband_init_sensor(sensor)
 
+    # if the object was successfully created, then assign relevant callbacks
     if sensor != None:
+        logger.debug(f"Sensor connection established -> {str(sensor)}")
         sensor.sensorStateChanged = on_sensor_state_changed
-        sensor.connect()
         sensor.signalDataReceived = on_brain_bit_signal_data_received
-        logger.debug(f"Sensor connection established {str(sensor)}")
+        sensor.batteryChanged     = on_battery_changed
 
     return sensor
 
