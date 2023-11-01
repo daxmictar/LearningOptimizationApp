@@ -27,7 +27,7 @@ def headband_connection_process(seconds: float) -> Sensor | None:
     """ 
         Engages the headband connection process, which creates local scanner
         and scans for headbands. After the wait, scan through the list of all 
-        sensos found. If there is a sensor object, connect to it and pass it
+        sensors found. If there is a sensor object, connect to it and pass it
         to the global state of headband.py, from where it can be kept until 
         the current session is ended.
 
