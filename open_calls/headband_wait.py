@@ -1,6 +1,8 @@
 from tools.logging import logger
 from tools.headband import *
 
+from time import sleep
+
 
 def on_sensor_state_changed(sensor, state):
     logger.debug(f"object {sensor} named -> {sensor.name} is {state}")
@@ -40,14 +42,20 @@ def headband_connection_process():
     # add a callback to show when a sensor has been found
     gl_scanner.sensorsChanged = sensor_found 
 
+    sleep(5.0)
+
     # creates a global var in the headband.py module which retains the state
     # of the newly created sensor object and then passes it back
     gl_sensor = headband_init_sensor(gl_sensor)
 
+    return gl_sensor
+
     
 def handle_request():
+    sensor = headband_connection_process()
+
     # such as this one
-    if gl_sensor != None:
+    if sensor != None:
         return ["Headband is connected"]
     
     return ["Headband is not connected"] 
