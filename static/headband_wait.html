@@ -18,56 +18,34 @@
             Check if the battery is charged.
         </p>
     </center>
-<script>
+    <script>
+        function checkHeadband(data) {
+            var redirect_location = "";
 
-    // seconds of time until we redirect to connection_failed.html
-    // with a 'retry' button
-    const TIMEOUT_TIME = 15 * 1000;
-
-    /* waits for 'delay' seconds */
-    const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay * 1000));
-
-    // If this promise succeeds, then it times out the current handband
-    // connection instance and redirects to a page to prompt the user to try
-    // the connection process again
-    function waitForTimeout(ms) {
-        return new Promise((_, reject) => {
-            setTimeout(() => reject(new Error("timeout succeeded")), ms);
-            window.location.href = "try_again.html";
-        });
-    }
-
-    // If this promise succeeds, then we redirect to index.html, at which point
-    // the headband has successfully connected
-    function waitForHeadband() {
-        console.log("Waiting for headband complete");
-    }
-
-    // TODO set up post request for headband_wait stage
-    $.post("/open_api/headband_wait", { "data" : "initiated headband wait" },
-        (data, textStatus) => {
-
-            console.log(data[0]);
-            // console.log(textStatus);
-
-            const result = Promise.race([
-                waitForTimeout(TIMEOUT_TIME),
-                waitForHeadband()
-            ]);
-
+            // either "Headband is connected" or "Headband is not connected"
             if (data[0] == "Headband is connected") {
-                window.location.href = "index.html";
+                redirect_location = "index.html";
             } else {
-                window.location.href = "try_again.html";
+                redirect_location = "try_again.html";
             }
-            
-            result.then(response => { console.log(response)});
 
-            result.catch(error => console.log(error));
-            
-        }).fail((response) => { console.log(response) });
+            return redirect_location;
+        }
 
-</script>
+        function headbandWait() {
+            $.post("/open_api/headband_wait", { "data" : "initiated headband wait" },
+                (data, textStatus) => {
+                    console.log(data[0]);
 
+                    window.location.href = checkHeadband(data);
+            })
+            .fail((response) => { 
+                console.log(response) 
+            });
+        }
+
+        headbandWait();
+
+    </script>
 </body>
 </html>
