@@ -83,11 +83,7 @@ def survey():
 @token_required
 def exec_secure_proc(proc_name):
     logger.debug(f"Secure Call to {proc_name}")
-
-    # check for existence of headband
-    if not headband_is_connected():
-        logger.debug(f"No headband is connected when executing {proc_name}")
-
+    
     #see if we can execute it..
     resp = ""
     try:
@@ -107,11 +103,7 @@ def exec_secure_proc(proc_name):
 @app.route("/open_api/<proc_name>",methods=['GET', 'POST'])
 def exec_proc(proc_name):
     logger.debug(f"Call to {proc_name}")
-
-    # check for existence of headband
-    if not headband_is_connected():
-        logger.debug(f"No headband is connected when executing {proc_name}")
-
+   
     #see if we can execute it..
     resp = ""
     try:
