@@ -13,6 +13,10 @@ def on_brain_bit_signal_data_received(sensor, data):
     logger.debug(f"{data}\n")
 
 
+def on_battery_changed(sensor, battery):
+    logger.debug(f"{sensor.name} battery is now {battery}%")
+
+
 def headband_connection_process():
     """ 
         Engages the headband connection process, which creates a module level scanner
@@ -20,6 +24,8 @@ def headband_connection_process():
         creates a sensor object and passes it to the global state of headband.py, 
         from where it can be kept until the current session is ended.
     """
+    DELAY = 5.0
+
     # use utility function to create a scanner that just searches for the 
     # brainbit device that we want
     gl_scanner = headband_init_scanner()
@@ -36,17 +42,21 @@ def headband_connection_process():
             gl_sensor.sensorStateChanged = on_sensor_state_changed
             gl_sensor.connect()
             gl_sensor.signalDataReceived = on_brain_bit_signal_data_received
+            gl_sensor.batteryChanged = on_battery_changed
             gl_scanner.stop()
             del gl_scanner
 
+    logger.debug("Added callback for sensorsChanged")
     # add a callback to show when a sensor has been found
     gl_scanner.sensorsChanged = sensor_found 
 
-    sleep(5.0)
+    logger.debug("Begin delay for headband connection")
+    sleep(DELAY)
 
     # creates a global var in the headband.py module which retains the state
     # of the newly created sensor object and then passes it back
     gl_sensor = headband_init_sensor(gl_sensor)
+    logger.debug(f"After {DELAY}, headband is {gl_sensor}")
 
     return gl_sensor
 
@@ -54,7 +64,6 @@ def headband_connection_process():
 def handle_request():
     sensor = headband_connection_process()
 
-    # such as this one
     if sensor != None:
         return ["Headband is connected"]
     

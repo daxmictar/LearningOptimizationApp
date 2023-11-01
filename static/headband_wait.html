@@ -19,18 +19,8 @@
         </p>
     </center>
     <script>
-
-        // seconds of time until we redirect to try_again.html
-        // with a 'retry' button
-        const DELAY = 5;
-
-        // waits for 'delay' seconds
-        const sleep = (delay) => new Promise((resolve) => { 
-            setTimeout(resolve, delay * 1000)
-        });
-
         function checkHeadband(data) {
-            var redirect_location = ""
+            var redirect_location = "";
 
             // either "Headband is connected" or "Headband is not connected"
             if (data[0] == "Headband is connected") {
@@ -39,21 +29,22 @@
                 redirect_location = "try_again.html";
             }
 
-            return redirect_location
+            return redirect_location;
         }
 
         function headbandWait() {
             $.post("/open_api/headband_wait", { "data" : "initiated headband wait" },
                 (data, textStatus) => {
                     console.log(data[0]);
-            }).fail((response) => { console.log(response) });
 
-            return data
+                    window.location.href = checkHeadband(data);
+            })
+            .fail((response) => { 
+                console.log(response) 
+            });
         }
 
-        sleep(DELAY)
-            .then(headbandWait)
-            .then(checkHeadband)
+        headbandWait();
 
     </script>
 </body>
