@@ -29,6 +29,11 @@ FlaskJSON(app)
 global data_file
 data_file = {"file" : None}
 
+global usernames
+usernames = {
+    "test" : "test"
+}
+
 """
 #Set up watched videos
 global watched_videos
@@ -78,7 +83,7 @@ def init_new_env():
 #So.. we redirect to the endpoint we want to load the base page
 @app.route('/') #endpoint
 def survey():
-    return redirect('/static/survey.html')
+    return redirect('/static/log_in.html')
 
 
 @app.route("/secure_api/<proc_name>",methods=['GET', 'POST'])
@@ -129,10 +134,10 @@ def exec_proc(proc_name):
 
         #Check which proccess we are calling
         match(proc_name):
-            case "end_movie":
+            case "end_movie" | "next_video":
                 #For the end movie event we pass back {data : previous_video} 
                 resp = fn.handle_request(request.form['data'])
-            case "submit_survey" | "submit_post_video_survey":
+            case "submit_survey" | "submit_post_video_survey" | "log_in":
                 resp = fn.handle_request(request.form)
             case "play_movie":
                 resp = fn.handle_request(request.form['data'])

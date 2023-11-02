@@ -21,7 +21,7 @@
 
     function refreshSession (sender) {
         //Send over the form data
-        $.post("/open_api/refresh_session", data_object,
+        $.post("/open_api/refresh_session", {"data" : "some_data"},
             function(data, textStatus) {
                 //Gets called when browser recieves response from server
                 console.log("DATA: ");
@@ -37,7 +37,7 @@
 
     function logOut (sender) {
         //Send over the form data
-        $.post("/open_api/log_out", data_object,
+        $.post("/open_api/log_out", {"data" : "some_data"},
             function(data, textStatus) {
                 //Gets called when browser recieves response from server
                 console.log("DATA: ");

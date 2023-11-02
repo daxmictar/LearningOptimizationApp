@@ -47,8 +47,19 @@
                     console.log("DATA: ");
                     console.log(data);
 
-                    //Redirect to index page upon server response from survey
-                    window.location.href = 'survey.html';
+                    //Redirect to pages based on log in information
+                    switch(data[0]){
+                        case "User Not Found":
+                            window.location.href = 'survey.html';
+                        break;
+                        case "Correct Password":
+                            window.location.href = 'init_headband.html';
+                        break;
+                        case "Wrong Password":
+                            window.location.href = 'wrong_password.html';
+                        break;
+                    }
+                    
 
                 }, "json").fail(function(response){
                     console.log("Error");
