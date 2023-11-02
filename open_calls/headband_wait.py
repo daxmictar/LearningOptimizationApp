@@ -72,9 +72,18 @@ def headband_connection_process():
 
     
 def handle_request():
-    sensor = headband_connection_process()
+    CONNECTED = ["Headband is connected"]
+    NOT_CONNECTED = ["Headband is not connected"] 
+    NO_BLUETOOTH = ["No valid bluetooth adapter"]
+
+
+    sensor = None
+    try:
+        sensor = headband_connection_process()
+    except Exception:
+        return NO_BLUETOOTH
 
     if sensor != None:
-        return ["Headband is connected"]
+        return CONNECTED
     
-    return ["Headband is not connected"] 
+    return NOT_CONNECTED 

@@ -25,6 +25,8 @@
             // either "Headband is connected" or "Headband is not connected"
             if (data[0] == "Headband is connected") {
                 redirect_location = "index.html";
+            } else if (data[0] == "No valid bluetooth adapter") {
+                redirect_location = "index.html";
             } else {
                 redirect_location = "try_again.html";
             }
