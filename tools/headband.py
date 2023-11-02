@@ -53,7 +53,14 @@ def headband_is_connected() -> bool:
             True if headband object exists
     """
     logger.debug("Checking headband connection")
-    return hb != None
+    check = False
+
+    try:
+        check = hb != None
+    except:
+        hb = None
+
+    return check
 
 
 def headband_start_signal() -> bool:
