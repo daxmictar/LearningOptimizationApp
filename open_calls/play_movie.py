@@ -7,7 +7,6 @@ from neurosdk.cmn_types import *
 def handle_request(video_name):
     from app import data_file
 
-    #if g.hb == None:
     if not headband_is_connected():
         return ["No Headband"]
 

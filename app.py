@@ -8,14 +8,12 @@ import bcrypt
 import traceback
 
 from tools.database.db_lib import refresh_db
-
 from tools.token_required import token_required
 
 #used if you want to store your secrets in the aws valut
 #from tools.get_aws_secrets import get_secrets
 
 from tools.logging import logger
-from tools.eeg import * 
 from tools.headband import *
 
 ERROR_MSG = "Ooops.. Didn't work!"
@@ -90,13 +88,7 @@ def survey():
 @token_required
 def exec_secure_proc(proc_name):
     logger.debug(f"Secure Call to {proc_name}")
-
-    #setup the env
-    # init_new_env()
-    if not headband_is_connected:
-        hb = get_head_band_sensor_object()
-        logger.debug(str(hb))
-
+    
     #see if we can execute it..
     resp = ""
     try:
@@ -116,15 +108,7 @@ def exec_secure_proc(proc_name):
 @app.route("/open_api/<proc_name>",methods=['GET', 'POST'])
 def exec_proc(proc_name):
     logger.debug(f"Call to {proc_name}")
-
-    # setup the env
-    # reduced to just a headband existence check
-    # init_new_env()
-
-    if not headband_is_connected:
-        hb = get_head_band_sensor_object()
-        logger.debug(str(hb))
-
+   
     #see if we can execute it..
     resp = ""
     try:
@@ -152,9 +136,6 @@ def exec_proc(proc_name):
         logger.error(ex_data)
         return json_response(status_=500 ,data=ERROR_MSG)
 
-    # for debug purposes because of logger overlap
-    from time import sleep
-    sleep(0.5)
     
     logger.debug(f"{resp}")
 
