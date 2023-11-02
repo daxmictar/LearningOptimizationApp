@@ -1,68 +1,76 @@
 from tools.logging import logger
 from tools.headband import *
-from time import sleep
-import concurrent.futures
 
+from time import sleep
+
+gl_scanner = None
+gl_sensor = None
 
 def on_sensor_state_changed(sensor, state):
     logger.debug(f"object {sensor} named -> {sensor.name} is {state}")
+
 
 def on_brain_bit_signal_data_received(sensor, data):
     # prints the current data object, which should be a BrainBitSensorInfo
     logger.debug(f"{data}\n")
 
+
+def on_battery_changed(sensor, battery):
+    logger.debug(f"{sensor.name} battery is now {battery}%")
+
+
+# from Jardin's eeg.py
+def sensor_found(scanner, sensors):
+    global gl_scanner
+    global gl_sensor
+    for i in range(len(sensors)):
+        logger.debug(f"Sensor -> {sensors[i]}")
+        logger.debug("Connecting to sensor")
+        gl_sensor = gl_scanner.create_sensor(sensors[i])
+        gl_sensor.sensorStateChanged = on_sensor_state_changed
+        gl_sensor.connect()
+        gl_sensor.signalDataReceived = on_brain_bit_signal_data_received
+        gl_sensor.batteryChanged = on_battery_changed
+        gl_scanner.stop()
+        del gl_scanner
+
+
 def headband_connection_process():
-    """ for debug/testing purposes """
-    seconds_to_scan_for = 10
+    """ 
+        Engages the headband connection process, which creates a module level scanner
+        and scans for local headbands. Upon finding a headband, issue a callback which 
+        creates a sensor object.
+    """
+    DELAY = 8.0
 
-    # use wrapper function to create a new scanner
-    scanner: Scanner = headband_init_scanner()
-    logger.debug(f"Created headband scanner object {scanner}")
+    # use utility function to create a scanner that just searches for the 
+    # brainbit device that we want
+    global gl_scanner
+    global gl_sensor
 
+    gl_scanner = headband_init_scanner()
+    gl_sensor = None
+
+
+    logger.debug("Added callback for sensorsChanged")
     # add a callback to show when a sensor has been found
-    scanner.sensorsChanged = on_sensor_state_changed
+    gl_scanner.sensorsChanged = sensor_found 
+    gl_scanner.start()
 
-    # scan and wait for n seconds to fill the sensor list
-    scanner.start()
-    logger.debug(f"Initiated {seconds_to_scan_for} second wait for headband connection process")
-    sleep(seconds_to_scan_for)
-    logger.debug(f"Waited for {seconds_to_scan_for} seconds")
-    scanner.stop()
+    logger.debug("Begin delay for headband connection")
 
-    # use the scanner to create a sensor
-    def connect_headband_sensor(info):
-        logger.debug(f"Creating sensor with {info}")
-        return scanner.create_sensor(info)
+    while True:
+        sleep(1)
+        if gl_sensor != None:
+            gl_sensor = headband_init_sensor(gl_sensor)
+            break
 
-    # go through each of the sensors acquired from the scan    
-    sensor_info = scanner.sensors()
-    sensor = None
-    if len(sensor_info) > 0:
-        for i in range(len(sensor_info)):
-            current_sensor_info = sensor_info[i]
-            logger.debug(f"Currently scanning {current_sensor_info}")
+    # creates a global var in the headband.py module which retains the state
+    # of the newly created sensor object and then passes it back
+    logger.debug(f"After {DELAY}, headband is {gl_sensor}")
+    return gl_sensor
 
-            with concurrent.futures.ThreadPoolExecutor() as exec:
-                future = exec.submit(connect_headband_sensor, current_sensor_info)
-                sensor = future.result()
-    else:
-        num_sensors = len(sensor_info)
-        logger.debug(f"No sensors found, sensors() list is {num_sensors}")
-            
-    # get rid of the current scanner object
-    # must redo this request to create a new scanner and reconnect
-    del scanner
-
-    sensor = headband_init_sensor(sensor)
-
-    if sensor != None:
-        sensor.sensorStateChanged = on_sensor_state_changed
-        sensor.connect()
-        sensor.signalDataReceived = on_brain_bit_signal_data_received
-        logger.debug(f"Sensor connection established {str(sensor)}")
-
-    return sensor
-
+    
 def handle_request():
     sensor = headband_connection_process()
 

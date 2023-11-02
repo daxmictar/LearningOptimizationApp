@@ -1,8 +1,16 @@
-from tools.eeg import *
-from tools.logging import logger
-from typing import Callable
+from neurosdk.scanner import Scanner
+from neurosdk.sensor import Sensor
+from neurosdk.brainbit_sensor import BrainBitSensor
+from neurosdk.cmn_types import *
 
-# utility interface for handling the headband
+from tools.logging import logger
+
+""" 
+    Utility interface for handling the headband 
+
+    To work properly, headband_init_sensor must be called to pass the state
+    of a Sensor object into this module.
+"""
 
 def headband_init_scanner() -> Scanner:
     """
@@ -12,9 +20,8 @@ def headband_init_scanner() -> Scanner:
         Returns:
             A valid scanner object that scans for a BrainBit sensor
     """
-    logger.debug("Creating local headband scanner")
-
     scanner = Scanner([SensorFamily.SensorLEBrainBit])
+    logger.debug(f"Created local headband scanner -> {scanner}")
 
     return scanner
 
@@ -28,8 +35,6 @@ def headband_init_sensor(sensor: Sensor) -> Sensor:
         Returns:
             The global sensor object.
     """
-    # initialize the global var by default
-    # but this function must be called
     global hb
 
     if sensor == None:
@@ -40,23 +45,6 @@ def headband_init_sensor(sensor: Sensor) -> Sensor:
     return hb
 
 
-def headband_setup_callback(scanner: Scanner, callback: Callable[[Scanner, list[Sensor]], None]) -> Scanner:
-    """
-        Initializes callback function to scan for headbands.
-
-        Returns:
-            The object with the callback added.
-    """
-    if scanner == None:
-        logger.debug("Passed an empty scanner object as an argument")
-        return
-
-    logger.debug("Assigning sensor found callback")
-    scanner.sensorsChanged = callback
-
-    return scanner
-
-
 def headband_is_connected() -> bool:
     """ 
     Checks headband connection status
@@ -65,7 +53,14 @@ def headband_is_connected() -> bool:
             True if headband object exists
     """
     logger.debug("Checking headband connection")
-    return hb != None
+    check = False
+
+    try:
+        check = hb != None
+    except:
+        hb = None
+
+    return check
 
 
 def headband_start_signal() -> bool:
@@ -81,6 +76,7 @@ def headband_start_signal() -> bool:
         return False
 
     hb.exec_command(SensorCommand.CommandStartSignal)
+
     return True
 
 
@@ -96,8 +92,13 @@ def headband_stop_signal() -> bool:
         return False
 
     hb.exec_command(SensorCommand.CommandStopSignal)
+
     return True
 
 
-def headband_get_sensor():
+def headband_get_sensor() -> Sensor:
+    """
+        Passes the state of the currently initialized sensor object, which 
+        if connected, should be a Sensor object.
+    """
     return hb
