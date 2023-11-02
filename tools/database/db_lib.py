@@ -73,6 +73,23 @@ def getval_watched(movie):
     db.close()
     
     return watched
+
+def update_watched(previous_video, attention):
+    db, cur = get_db_instance()
+
+    #if attention flag is 1, set the watched value of video with passed filename to -1
+    if attention==1:
+        cur.execute("UPDATE movies SET watched=-1 WHERE filename=?", (previous_video,))
+    #else increment its watched value by 1
+    else:
+        cur.execute("UPDATE movies SET watched=watched+1 WHERE filename=?", (previous_video,))
+
+    #debug output
+    cur.execute("SELECT filename, watched FROM movies")
+    logger.debug("List of (filename, watched):    %s", str(cur.fetchall()))
+
+    db.commit()
+    db.close()
     
 """
 Name:       get_tags
@@ -119,28 +136,8 @@ def get_matching_videos(tag_list):
     
     return match_list
 
-"""
-Name:       update_prev_get_next
-Purpose:    NOTICE: This function effectively combines and subsumes set_watched and get_unwatched.
-            Update the watched attribute value of the video with passed filename based on the value of the passed attention flag,
-            then return the filename of the video with lowest non-negative watched attribute value.
-Parameter:  STRING representing video filename, INT (0 or 1) representing user's attention
-Return:     STRING representing video filename
-"""
-def update_prev_get_next(previous_video, attention):
+def get_next_ignore_tags(previous_video, attention):
     db, cur = get_db_instance()
-
-    #if attention flag is 1, set the watched value of video with passed filename to -1
-    if attention==1:
-        cur.execute("UPDATE movies SET watched=-1 WHERE filename=?", (previous_video,))
-    #else increment its watched value by 1
-    else:
-        cur.execute("UPDATE movies SET watched=watched+1 WHERE filename=?", (previous_video,))
-
-    #debug output
-    cur.execute("SELECT filename,watched FROM movies")
-    logger.debug("List of (filename, watched) follows:")
-    logger.debug(str(cur.fetchall()))
     
     #query and store the filename of the movie with the lowest non-negative watched value (tie goes to "lowest" filename)
     cur.execute("SELECT filename FROM movies WHERE watched=(SELECT MIN(watched) FROM movies WHERE watched>-1) LIMIT 1")
@@ -148,17 +145,55 @@ def update_prev_get_next(previous_video, attention):
 
     #if the above query got no hits (all videos have been watched with attention), replay the previous video
     if temp is None:
-        logger.debug("All videos have been watched with attention. Replaying previous.")
         next_video=previous_video
     #else will return the filename produced by the query
     else:
-        logger.debug("Choosing a video from the queue.")
         next_video = temp[0]
+
+    db.close()
+
+    return next_video
+
+def fts_create_and_copy():
+    db, cur = get_db_instance()
+
+    cur.execute("CREATE VIRTUAL TABLE movies_fts USING fts5 (filename, tags, watched)")
+    cur.execute("INSERT INTO movies_fts (filename, tags, watched) SELECT filename, tags, watched FROM movies WHERE watched>-1")
 
     db.commit()
     db.close()
 
-    return next_video
+def update_prev_filter_next(previous_video, attention, tag_list):
+    update_watched(previous_video, attention)
+
+    db, cur = get_db_instance()
+
+    cur.execute("SELECT COUNT(*) FROM movies WHERE watched>-1")
+    if cur.fetchone()==0:
+        
+
+    if not tag_list:
+        return get_next_ignore_tags(previous_video, attention)
+
+    else:
+        joined_tags = ' AND '.join(tag_list)
+
+        fts_create_and_copy()
+        cur.execute("SELECT filename FROM movies_fts WHERE watched=(SELECT MIN(watched) FROM movies WHERE watched>-1) AND tags MATCH '?'", joined_tags)
+        temp = cur.fetchone()
+
+        if temp is not None:
+            return temp
+        else:
+            while temp is None and tag_list:
+                cur.execute("SELECT filename FROM movies_fts WHERE watched>-1 AND tags MATCH '?'", joined_tags)
+                temp = cur.fetchone()
+                
+        cur.execute("DROP TABLE IF EXISTS movies_fts")
+        
+        db.commit()
+    
+    db.close()
 
 """
 Name:       set_watched
