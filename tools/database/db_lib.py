@@ -74,6 +74,13 @@ def getval_watched(movie):
     
     return watched
 
+"""
+Name:       update_watched
+Purpose:    Update the watched attribute value of the movie with passed filename based on passed attention flag.
+            Attention==0 will cause watched to be incremented by 1. Attention==1 will cause watched to get -1.
+Parameter:  STRING representing video filename, INT (0 or 1) representing failure or success to pay attention.
+Return:     none
+"""
 def update_watched(previous_video, attention):
     db, cur = get_db_instance()
 
@@ -84,7 +91,7 @@ def update_watched(previous_video, attention):
     else:
         cur.execute("UPDATE movies SET watched=watched+1 WHERE filename=?", (previous_video,))
 
-    #debug output
+    #debug
     cur.execute("SELECT filename, watched FROM movies")
     logger.debug("List of (filename, watched):    %s", str(cur.fetchall()))
 
@@ -136,22 +143,15 @@ def get_matching_videos(tag_list):
     
     return match_list
 
-def get_next_ignore_tags(previous_video, attention):
+def get_next_ignore_tags():
     db, cur = get_db_instance()
     
-    #query and store the filename of the movie with the lowest non-negative watched value (tie goes to "lowest" filename)
+    #query and return the filename of the movie with the lowest non-negative watched value (tie goes to "lowest" filename)
     cur.execute("SELECT filename FROM movies WHERE watched=(SELECT MIN(watched) FROM movies WHERE watched>-1) LIMIT 1")
-    temp = cur.fetchone()
-
-    #if the above query got no hits (all videos have been watched with attention), replay the previous video
-    if temp is None:
-        next_video=previous_video
-    #else will return the filename produced by the query
-    else:
-        next_video = temp[0]
-
+    next_video = cur.fetchone()
+    
     db.close()
-
+    
     return next_video
 
 def fts_create_and_copy():
@@ -170,10 +170,13 @@ def update_prev_filter_next(previous_video, attention, tag_list):
 
     cur.execute("SELECT COUNT(*) FROM movies WHERE watched>-1")
     if cur.fetchone()==0:
-        
+        logger.debug("All videos have been watched with attention. Replaying previous.")
+        db.close()
+        return previous_video
 
     if not tag_list:
-        return get_next_ignore_tags(previous_video, attention)
+        db.close()
+        return get_next_ignore_tags()
 
     else:
         joined_tags = ' AND '.join(tag_list)
