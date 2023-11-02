@@ -24,6 +24,7 @@
     
 
         <button id="retryButton">Attempt to connect to Headband again</button>
+        <button id="checkAgainButton">Check if the headband connected anyway</button>
     </center> 
 <script>
 
@@ -41,9 +42,25 @@
         );
     }
 
+    function checkAgain() {
+        $.post("/open_api/check_again", {"data" : "checking headband connection again"},
+            (data, textStatus) => {
+                if (data[0] == "Connected") {
+                    window.location.href = "index.html";
+                } else {
+                    window.location.href = "try_again.html";
+                }
+            }
+        ).fail((response) => console.log(response));
+    }
+
     document
         .getElementById('retryButton')
         .addEventListener('click', retryHeadbandConnectionProcess);
+
+    document
+        .getElementById('checkAgainButton')
+        .addEventListener('click', checkAgain);
 
 </script>
 
