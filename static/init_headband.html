@@ -10,6 +10,7 @@
 <body>
 <center>
     <button id="postButton">Scan for available headbands</button>
+    <button id="debugMode">DEBUG</button>
 </center>
 <script>
 
@@ -33,6 +34,10 @@
     document
         .getElementById('postButton')
         .addEventListener('click', beginScanForHeadband);
+    
+    document
+        .getElementById("debugMode")
+        .addEventListener("click", () => window.location.href = "index.html?debug_mode=true")
 
 </script>
 
