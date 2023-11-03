@@ -4,4 +4,4 @@ from neurosdk.cmn_types import *
 
 def handle_request(survey_data):
     logger.debug(survey_data)
-    return ["Survey Submitted"]
+    return ["Post Video Survey Submitted"]

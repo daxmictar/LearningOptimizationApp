@@ -3,7 +3,7 @@ from tools.logging import logger
 from tools.headband import *
 from neurosdk.cmn_types import * 
 import random
-from tools.database.db_lib import update_prev_filter_next,get_tags
+from tools.database.db_lib import update_prev_get_next
 
 # using sensor from headband_wait due to callback
 from open_calls.headband_wait import gl_sensor
@@ -16,7 +16,10 @@ def get_next_video(previous_video: str):
     attention = random.getrandbits(1) #currently will set to 0 or 1 randomly
 
     #update value of watched for previous video based on value of attention, and get filename for next video
-    next_video = (update_prev_filter_next(previous_video, attention, get_tags(previous_video)))
+    next_video = (update_prev_get_next(previous_video, attention))
+
+    if previous_video == next_video:
+        next_video = "No Video"
 
     return next_video
 
@@ -44,3 +47,5 @@ def handle_request(previous_video):
 
     #Send just the video name to the browser (May want to send more information later but for now working with this)
     return [next_video]
+
+

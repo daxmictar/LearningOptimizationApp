@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Headband Initialize</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" 
+		     integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <center>
+        <p>
+            Currently waiting for headband to connect!
+            <br><br>
+            Keep the headband nearby, so as to not lose connection!
+            <br><br>
+            Check if the battery is charged.
+        </p>
+    </center>
+    <script>
+        function checkHeadband(data) {
+            var redirect_location = "";
+
+            // either "Headband is connected" or "Headband is not connected"
+            if (data[0] == "Headband is connected") {
+                redirect_location = "index.html";
+            } else if (data[0] == "No valid bluetooth adapter") {
+                redirect_location = "index.html";
+            } else {
+                redirect_location = "try_again.html";
+            }
+
+            return redirect_location;
+        }
+
+        function headbandWait() {
+            $.post("/open_api/headband_wait", { "data" : "initiated headband wait" },
+                (data, textStatus) => {
+                    console.log(data[0]);
+
+                    window.location.href = checkHeadband(data);
+            })
+            .fail((response) => { 
+                console.log(response) 
+            });
+        }
+
+        headbandWait();
+
+    </script>
+</body>
+</html>

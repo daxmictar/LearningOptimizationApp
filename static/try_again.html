@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Headband Initialize</title>
+    <link rel="stylesheet" type="text/css" href="try_again.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.js" 
+		     integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <center>
+        <p>
+            <h1>There is no headband connection!</h1>
+            <br><br>
+            <h3>Potential Errors:</h3>
+                <ol class="center">
+                    <li>The headband is not charged.</li>
+                    <li>Battery pack to the headband is not plugged in.</li>
+                    <li>The headband was moved out of range of the bluetooth scanner.</li>
+                </ol>
+        </p>
+    
+
+        <button id="retryButton">Attempt to connect to Headband again</button>
+        <button id="checkAgainButton">Check if the headband connected anyway</button>
+    </center> 
+<script>
+
+    function retryHeadbandConnectionProcess() {
+        $.post("/open_api/try_again", { "data" : "try again to reconnect to hb" },
+            (data, textStatus) => {
+                // this gets called when browser receives response from server
+                console.log(data);
+                window.location.href = "init_headband.html";
+            }, "json").fail((response) => {
+                    //this gets called if the server throws an error
+                    console.log("Error attempting to connect to headband again.");
+                    console.log(response);
+                }
+        );
+    }
+
+    function checkAgain() {
+        $.post("/open_api/check_again", {"data" : "checking headband connection again"},
+            (data, textStatus) => {
+                if (data[0] == "Connected") {
+                    window.location.href = "index.html";
+                } else {
+                    window.location.href = "try_again.html";
+                }
+            }
+        ).fail((response) => console.log(response));
+    }
+
+    document
+        .getElementById('retryButton')
+        .addEventListener('click', retryHeadbandConnectionProcess);
+
+    document
+        .getElementById('checkAgainButton')
+        .addEventListener('click', checkAgain);
+
+</script>
+
+</body>
+</html>

@@ -14,33 +14,14 @@
     <script>
         const surveyJson = {
             elements: [{
-                name: "FirstName",
-                title: "Enter your first name:",
-                type: "text"
-            }, {
-                name: "LastName",
-                title: "Enter your last name:",
-                type: "text"
-            }, {
-                type : "dropdown",
-                name : "GradeLevel",
-                title: "Choose your grade level:",
-                choices : [
-                    "First Grade",
-                    "Second Grade",
-                    "Third Grade",
-                    "Fourth Grade",
-                    "Fifth Grade",
-                    "Sixth Grade",
-                    "Seventh Grade",
-                    "Eighth Grade",
-                    "Ninth Grade",
-                    "Tenth Grade",
-                    "Eleventh Grade",
-                    "Twelveth Grade"
-                ]
-            }
-        ]
+                "type": "rating",
+                "name": "Video Survey",
+                "title": "How happy are you with the last video?",
+                "hideNumber": true,
+                "isRequired": true,
+                "rateType": "smileys"
+                }
+            ]
         };
 
         const survey = new Survey.Model(surveyJson);
@@ -54,15 +35,23 @@
                 data_object[name] = sender.data[name];
             }
             
+            const urlParams = new URLSearchParams(window.location.search);
+            const variable = urlParams.get('last_video');
+            console.log(variable);
+
             //Send over the form data
-            $.post("/open_api/submit_survey", data_object,
+            $.post("/open_api/next_video", { 'data' : variable},
                 function(data, textStatus) {
                     //Gets called when browser recieves response from server
                     console.log("DATA: ");
                     console.log(data);
-
-                    //Redirect to index page upon server response from survey
-                    window.location.href = 'init_headband.html';
+                    
+                    if(data[0] == "No Video"){
+                        window.location.href = 'no_videos.html';
+                    } else {
+                        //Redirect to index page upon server response from survey
+                        window.location.href = 'index.html?next_video=' + data[0];
+                    }
 
                 }, "json").fail(function(response){
                     console.log("Error");
@@ -70,7 +59,10 @@
                 });
         }
 
-        survey.onComplete.add(alertResults);
+        //survey.onComplete.add(alertResults);
+
+        survey.onValueChanged.add(alertResults);
+        survey.showCompletedPage = false;
 
         $(function() {
             $("#surveyContainer").Survey({ model: survey });

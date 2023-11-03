@@ -7,19 +7,16 @@ import datetime
 import bcrypt
 import traceback
 
-from tools.eeg import get_head_band_sensor_object
-
 from tools.database.db_lib import refresh_db
-
 from tools.token_required import token_required
 
 #used if you want to store your secrets in the aws valut
 #from tools.get_aws_secrets import get_secrets
 
 from tools.logging import logger
+from tools.headband import *
 
 ERROR_MSG = "Ooops.. Didn't work!"
-
 
 #Create our app
 app = Flask(__name__)
@@ -28,6 +25,11 @@ FlaskJSON(app)
 
 global data_file
 data_file = {"file" : None}
+
+global usernames
+usernames = {
+    "test" : "test"
+}
 
 """
 #Set up watched videos
@@ -55,34 +57,37 @@ unwatched_videos = {
 }
 """
 
+"""
 #g is flask for a global var storage
 def init_new_env():
-    """
+    
     #To connect to DB
     if 'db' not in g:
         g.db = get_db()
-    """
     
-    if 'hb' not in g:
-        g.hb = get_head_band_sensor_object()
+
+    if headband == None:
+        headband = get_head_band_sensor_object()
+    
+    #if 'hb' not in g:
+    #    g.hb = get_head_band_sensor_object()
 
     #g.secrets = get_secrets()
     #g.sms_client = get_sms_client()
+"""
 
 #This gets executed by default by the browser if no page is specified
 #So.. we redirect to the endpoint we want to load the base page
 @app.route('/') #endpoint
 def survey():
-    return redirect('/static/survey.html')
+    return redirect('/static/log_in.html')
+
 
 @app.route("/secure_api/<proc_name>",methods=['GET', 'POST'])
 @token_required
 def exec_secure_proc(proc_name):
     logger.debug(f"Secure Call to {proc_name}")
-
-    #setup the env
-    init_new_env()
-
+    
     #see if we can execute it..
     resp = ""
     try:
@@ -99,40 +104,38 @@ def exec_secure_proc(proc_name):
     return resp
 
 
-
 @app.route("/open_api/<proc_name>",methods=['GET', 'POST'])
 def exec_proc(proc_name):
     logger.debug(f"Call to {proc_name}")
-
-    #setup the env
-    init_new_env()
-
+   
     #see if we can execute it..
     resp = ""
     try:
-        fn = getattr(__import__('open_calls.'+proc_name), proc_name)
+        fn = getattr(__import__('open_calls.' + proc_name), proc_name)
         
         print(request.form)
 
         #Check which proccess we are calling
         match(proc_name):
-            case "end_movie":
+            case "end_movie" | "next_video":
                 #For the end movie event we pass back {data : previous_video} 
                 resp = fn.handle_request(request.form['data'])
-            case "submit_survey":
+            case "submit_survey" | "submit_post_video_survey" | "log_in":
                 resp = fn.handle_request(request.form)
             case "play_movie":
                 resp = fn.handle_request(request.form['data'])
             case _:
                 #By default we pass nothing to the request
                 resp = fn.handle_request()
+
     except Exception as err:
         ex_data = str(Exception) + '\n'
         ex_data = ex_data + str(err) + '\n'
         ex_data = ex_data + traceback.format_exc()
         logger.error(ex_data)
         return json_response(status_=500 ,data=ERROR_MSG)
-    print(resp)
+    
+    logger.debug(f"{resp}")
 
     return resp
 
@@ -140,4 +143,3 @@ def exec_proc(proc_name):
 if __name__ == '__main__':
     refresh_db()
     app.run(host='0.0.0.0', port=80)
-

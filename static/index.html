@@ -28,7 +28,7 @@
 					//Gets called when browser recieves response from server
 					console.log("DATA: ");
 					console.log(data);
-
+					
 					//Grab the video and the video source
 					video = document.getElementById("video")
 					video_source = document.getElementById("video_source")
@@ -38,6 +38,9 @@
 
 					//Load the video
 					video.load();
+
+					//Redirect to post video survey
+					window.location.href = 'post_video_survey.html?last_video=' + data[0];
 				}, "json").fail(function(response){
 					console.log("Error");
 					console.log(response);
@@ -69,6 +72,27 @@
 			console.log(prev_video);
 			play_end(prev_video);
 		})
+
+		window.onload = function(){
+			console.log("Grabbing location: " + window.location);
+
+			const urlParams = new URLSearchParams(window.location.search);
+            const variable = urlParams.get('next_video');
+            console.log("Grabbing variable: " + variable);
+
+			if(variable != null){
+				//Grab the video and the video source
+				video = document.getElementById("video")
+				video_source = document.getElementById("video_source")
+				
+				//Set the source to the new video recieved from server
+				video_source.setAttribute("src", variable);
+
+				//Load the video
+				video.load();
+			}
+		}
+		
 	</script>
 
     </body>
