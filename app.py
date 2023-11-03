@@ -18,7 +18,6 @@ from tools.headband import *
 
 ERROR_MSG = "Ooops.. Didn't work!"
 
-
 #Create our app
 app = Flask(__name__)
 #add in flask json
@@ -135,13 +134,12 @@ def exec_proc(proc_name):
         ex_data = ex_data + traceback.format_exc()
         logger.error(ex_data)
         return json_response(status_=500 ,data=ERROR_MSG)
-
     
     logger.debug(f"{resp}")
 
     return resp
 
+
 if __name__ == '__main__':
     refresh_db()
     app.run(host='0.0.0.0', port=80)
-

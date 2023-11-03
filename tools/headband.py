@@ -5,6 +5,8 @@ from neurosdk.cmn_types import *
 
 from tools.logging import logger
 
+hb = None
+
 """ 
     Utility interface for handling the headband 
 
@@ -74,7 +76,7 @@ def headband_start_signal() -> bool:
     if not headband_is_connected():
         logger.debug("No headband available to start")
         return False
-
+    
     hb.exec_command(SensorCommand.CommandStartSignal)
 
     return True

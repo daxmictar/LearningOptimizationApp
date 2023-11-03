@@ -5,7 +5,7 @@ from neurosdk.cmn_types import *
 import random
 from tools.database.db_lib import update_prev_get_next
 
-# using global sensor from headband_wait due to callback
+# using sensor from headband_wait due to callback
 from open_calls.headband_wait import gl_sensor
 
 #Returns the next video based on the last video
@@ -31,7 +31,7 @@ def handle_request(previous_video):
     logger.debug("Previous Video: " + previous_video + "\t" + "Next Video: " + next_video)
 
     #If there is no headband we stop here
-    if gl_sensor is None:
+    if gl_sensor == None:
         #Send just the video name to the browser (May want to send more information later but for now working with this)
         return [next_video]
 
