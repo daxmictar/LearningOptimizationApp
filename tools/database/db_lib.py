@@ -315,14 +315,8 @@ Return:     none
 def update_prev_filter_next(previous_video, attention, tag_list):
     db, cur = get_db_instance()
 
-    #temporary measure to defend against updating watched when replaying last vid
-    cur.execute("SELECT watched FROM movies WHERE filename=?",(previous_video,))
-    if cur.fetchone()[0] > -1:
-        update_watched(previous_video, attention)
-
     #if no videos remain with watched value >-1, return previous to replay it
     if count_unwatched()==0:
-        logger.debug("All videos have been watched with attention. Replaying previous.")
         db.close()
         return previous_video
 
