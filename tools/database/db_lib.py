@@ -88,6 +88,20 @@ def set_watched(movie):
     db.close()
 
 """
+Name:       set_all_watched
+Purpose:    Set the watched attribute for all rows in movies to -1 (watched with attention)
+Parameter:  none
+Return:     none
+"""  
+def set_all_watched():
+    db, cur = get_db_instance()
+    
+    cur.execute("UPDATE movies SET watched=-1")
+
+    db.commit()
+    db.close()
+
+"""
 Name:       get_unwatched
 Purpose:    NOTICE: This function is effectively subsumed by update_prev_get_next
             Get the filename of a random unwatched video.
