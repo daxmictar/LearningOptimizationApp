@@ -3,8 +3,10 @@ from tools.headband import *
 
 from time import sleep
 
+
 gl_scanner = None
 gl_sensor = None
+
 
 def on_sensor_state_changed(sensor, state):
     logger.debug(f"object {sensor} named -> {sensor.name} is {state}")
@@ -75,7 +77,6 @@ def handle_request():
     CONNECTED = ["Headband is connected"]
     NOT_CONNECTED = ["Headband is not connected"] 
     NO_BLUETOOTH = ["No valid bluetooth adapter"]
-
 
     sensor = None
     try:
