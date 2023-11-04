@@ -213,21 +213,23 @@ def get_matching_videos(tag_list):
 
 """
 Name:       get_next_ignore_tags
-Purpose:    Return the filename of the video with the lowest non-negative watched value. Tie goes to "lowest" filename
+Purpose:    Return the filename of the video different from prev with the lowest non-negative watched value. Tie goes to "lowest" filename
 Parameter:  none
 Return:     STRING representing video filename
 """
 def get_next_ignore_tags(previous_video):
     db, cur = get_db_instance()
     
-    #query and return the filename of the movie with the lowest non-negative watched value (tie goes to "lowest" filename)
+    #query for video as described in function desc
     cur.execute("SELECT filename FROM movies WHERE watched>-1 AND filename<>? ORDER BY watched ASC LIMIT 1", (previous_video,))
     temp = cur.fetchone()
-    
+
+    #if query got no hits, return previous
     if temp is None:
         db.close()
         return previous_video
 
+    #otherwise move on to return the hit
     next_video = temp[0]
     
     db.close()
@@ -236,9 +238,7 @@ def get_next_ignore_tags(previous_video):
 
 """
 Name:       get_best_match
-Purpose:    Get the filename of the video which has as many of the passed tags as possible and watched > -1.
-            If a search gets no hits, the tag with lowest weight*favor is pruned from the filter and the search is redone.
-            When pruning another tag would leave you with none, pass the job to get_next_ignore_tags.
+Purpose:    Get filename of the video different from prev which has as many of the passed tags as possible and watched > -1.
             If there are multiple hits, the movie with lowest watched value is selected.
 Parameter:  STRING representing video filename, LIST OF STRINGS representing tag names
 Return:     STRING representing video filename
@@ -252,13 +252,16 @@ def get_best_match(previous_video, tag_list):
     #create virtual copy of movies table to allow use of MATCH in query
     fts_create_and_copy()
 
+    #query for video as described in function desc
     cur.execute("SELECT filename FROM movies_fts WHERE watched>-1 AND filename<>? AND tags MATCH ? ORDER BY bm25(movies_fts), watched", (previous_video, joined_tags,))
     temp = cur.fetchone()
 
+    #if query got no hits, pass job to get_next_ignore_tags
     if temp is None:
         logger.debug("No match found. Querying for best watched value.")
         return get_next_ignore_tags(previous_video)
 
+    #otherwise move on to return the best match from the query
     next_video = temp[0]
 
     db.close()
