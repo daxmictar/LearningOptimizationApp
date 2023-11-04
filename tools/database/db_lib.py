@@ -228,7 +228,7 @@ def get_matching_videos(tag_list):
 """
 Name:       get_next_ignore_tags
 Purpose:    Return the filename of the video different from prev with the lowest non-negative watched value. Tie goes to "lowest" filename
-Parameter:  none
+Parameter:  STRING representing video filename
 Return:     STRING representing video filename
 """
 def get_next_ignore_tags(previous_video):
@@ -286,8 +286,10 @@ def get_best_match(previous_video, tag_list):
 """
 Name:       update_prev_get_next
 Purpose:    Essentially the driver function for previous video update and next video selection.
-Parameter:  none
-Return:     none
+Parameter:  STRING representing video filename, 
+            INT (0 or 1) representing user's failure or success to pay attention,
+            LIST OF STRINGS representing tag names
+Return:     STRING representing video filename
 """
 def update_prev_get_next(previous_video, attention, tag_list):
     db, cur = get_db_instance()
