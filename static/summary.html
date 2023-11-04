@@ -18,14 +18,23 @@
         <button id="logOutButton">Log Out</button>
     </center>
 <script>
+    function startSession() {
+        $.post("/open_api/start_session", "Starting Session",
+            (data, textStatus) => {
+                console.log(data);
+                console.log(textStatus);
+        }).fail((response) => console.log(response));
+    }
 
-    function refreshSession (sender) {
+    function refreshSession(sender) {
         //Send over the form data
         $.post("/open_api/refresh_session", {"data" : "some_data"},
             function(data, textStatus) {
                 //Gets called when browser recieves response from server
                 console.log("DATA: ");
                 console.log(data);
+
+                startSession();
 
                 //Redirect to index page upon server response from survey
                 window.location.href = 'index.html';
@@ -35,7 +44,7 @@
             });
     }
 
-    function logOut (sender) {
+    function logOut(sender) {
         //Send over the form data
         $.post("/open_api/log_out", {"data" : "some_data"},
             function(data, textStatus) {
@@ -52,12 +61,12 @@
     }
 
     document
-    .getElementById('refreshButton')
-    .addEventListener('click', refreshSession);
+        .getElementById('refreshButton')
+        .addEventListener('click', refreshSession);
 
     document
-    .getElementById('logOutButton')
-    .addEventListener('click', logOut);
+        .getElementById('logOutButton')
+        .addEventListener('click', logOut);
 </script>
 
 </body>
