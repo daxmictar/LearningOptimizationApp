@@ -8,6 +8,8 @@
     <link href="https://unpkg.com/survey-jquery/defaultV2.min.css" type="text/css" rel="stylesheet">
 
     <script type="text/javascript" src="https://unpkg.com/survey-jquery/survey.jquery.min.js"></script>
+
+    <button id="endSessionButton">End Session</button>
 </head>
 <body>
     <div id="surveyContainer"></div>
@@ -67,6 +69,22 @@
         $(function() {
             $("#surveyContainer").Survey({ model: survey });
         });
+
+        document
+            .getElementById("endSessionButton")
+            .addEventListener("click", () => {
+                $.post("/open_api/end_session", "Ending Session",
+                    (data, textStatus) => {
+                        if (data[0] == "No Session Started") {
+                            console.log("No Session Recorded")
+                            window.location.href = "index.html";
+                        } else {
+                            window.location.href = "summary.html";
+                        }
+                    }
+                ).fail((response) => console.log(response));
+            });
+
     </script>
 </body>
 </html>

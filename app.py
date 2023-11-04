@@ -15,6 +15,7 @@ from tools.token_required import token_required
 
 from tools.logging import logger
 from tools.headband import *
+from tools.session import *
 
 ERROR_MSG = "Ooops.. Didn't work!"
 
