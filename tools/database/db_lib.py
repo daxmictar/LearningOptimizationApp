@@ -23,6 +23,20 @@ def get_db_instance():
     return db, cur
 
 """
+Name:       set_all_watched
+Purpose:    Set the watched attribute for all rows in movies to -1 (watched with attention)
+Parameter:  none
+Return:     none
+"""  
+def set_all_watched():
+    db, cur = get_db_instance()
+    
+    cur.execute("UPDATE movies SET watched=-1")
+
+    db.commit()
+    db.close()
+
+"""
 Name:       reset_all_watched
 Purpose:    Update the watched attribute value of all rows in movies table to 0 (unwatched)
 Parameter:  none
