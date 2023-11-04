@@ -29,6 +29,15 @@
             ]
         };
 
+        function startSession() {
+            $.post("/open_api/start_session", "Starting Session",
+                (data, textStatus) => {
+                    console.log(data);
+                    console.log(textStatus);
+                }
+            ).fail((response) => console.log(response));
+        }
+
         const survey = new Survey.Model(surveyJson);
 
         function logIn (sender) {
@@ -60,6 +69,7 @@
                         break;
                     }
                     
+                    startSession();
 
                 }, "json").fail(function(response){
                     console.log("Error");

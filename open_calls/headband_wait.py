@@ -53,7 +53,6 @@ def headband_connection_process():
     gl_scanner = headband_init_scanner()
     gl_sensor = None
 
-
     logger.debug("Added callback for sensorsChanged")
     # add a callback to show when a sensor has been found
     gl_scanner.sensorsChanged = sensor_found 
