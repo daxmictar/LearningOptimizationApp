@@ -97,6 +97,24 @@ def refresh_db():
 
     db.commit()
     db.close()
+
+"""
+Name:       fts_create_and_copy
+Purpose:    Create a virtual movies table and copy all rows from its physical counterpart.
+            Don't forget to drop it after done using it wherever you call this function.
+Parameter:  none
+Return:     none
+"""
+def fts_create_and_copy():
+    db, cur = get_db_instance()
+
+    cur.execute("DROP TABLE IF EXISTS movies_fts")
+
+    cur.execute("CREATE VIRTUAL TABLE movies_fts USING fts5 (filename, tags, watched)")
+    cur.execute("INSERT INTO movies_fts (filename, tags, watched) SELECT filename, tags, watched FROM movies WHERE watched>-1")
+
+    db.commit()
+    db.close()
     
 """
 Name:       getval_watched
@@ -165,46 +183,7 @@ def get_tags(movie):
 
     return tag_list
 
-"""
-Name:       prune_tag_list
-Purpose:    Remove from the passed list the tag with the lowest aggregate tag priority (weight*favor) and return the shortened list.
-Parameter:  LIST OF STRINGS representing tag names
-Return:     LIST OF STRINGS representing tag names
-"""
-def prune_tag_list(tag_list):
-    db, cur = get_db_instance()
-
-    #initialize index and value of tag to be pruned from list
-    index_to_prune = len(tag_list)-1
-    t = tag_list[index_to_prune]
-
-    #get the tag's weight and favor and initialize minimum aggregate tag priority
-    cur.execute("SELECT weight FROM tags WHERE name=?", (t,))
-    weight = cur.fetchone()[0]
-    cur.execute("SELECT favor FROM tags WHERE name=?", (t,))
-    favor = cur.fetchone()[0]
-    min_ATP = weight * favor
-    
-    #loop in reverse through passed list, starting with second to last element
-    for i in range(len(tag_list)-2, 0, -1):
-        #get name of current tag in list
-        t = tag_list[i]
-        
-        #get current tag's weight and favor
-        cur.execute("SELECT weight FROM tags WHERE name=?", (t,))
-        weight = cur.fetchone()[0]
-        cur.execute("SELECT favor FROM tags WHERE name=?", (t,))
-        favor = cur.fetchone()[0]
-
-        #if current tag's aggregate tag priority is less than that of the minimum so far, mark current tag's index to be pruned
-        if weight * favor < min_ATP:
-            index_to_prune = i
-
-    #prune tag whose index was marked and return shortened list
-    tag_list.pop(index_to_prune)
-    return tag_list
-
-"""         THIS FUNCTION IS EXTREMELY INEFFICIENT AND SHOULD BE REFACTORED BEFORE USE IN AN OFFICIAL BUILD/DEMO
+"""         THIS FUNCTION IS INEFFICIENT AND SHOULD BE REFACTORED BEFORE USE IN AN OFFICIAL BUILD/DEMO
 Name:       get_matching_videos
 Purpose:    Get a list of video filenames which match all of the tags in the passed list of tags.
             (currently does not discriminate by watched attribute value.
@@ -233,6 +212,29 @@ def get_matching_videos(tag_list):
     return match_list
 
 """
+Name:       get_next_ignore_tags
+Purpose:    Return the filename of the video with the lowest non-negative watched value. Tie goes to "lowest" filename
+Parameter:  none
+Return:     STRING representing video filename
+"""
+def get_next_ignore_tags(previous_video):
+    db, cur = get_db_instance()
+    
+    #query and return the filename of the movie with the lowest non-negative watched value (tie goes to "lowest" filename)
+    cur.execute("SELECT filename FROM movies WHERE watched>-1 AND filename<>? ORDER BY watched ASC LIMIT 1", (previous_video,))
+    temp = cur.fetchone()
+    
+    if temp is None:
+        db.close()
+        return previous_video
+
+    next_video = temp[0]
+    
+    db.close()
+
+    return next_video
+
+"""
 Name:       get_best_match
 Purpose:    Get the filename of the video which has as many of the passed tags as possible and watched > -1.
             If a search gets no hits, the tag with lowest weight*favor is pruned from the filter and the search is redone.
@@ -245,66 +247,24 @@ def get_best_match(previous_video, tag_list):
     db, cur = get_db_instance()
     
     #join tags in passed list into format for use in query below
-    joined_tags = ' AND '.join(tag_list)
+    joined_tags = ' OR '.join(tag_list)
     
     #create virtual copy of movies table to allow use of MATCH in query
     fts_create_and_copy()
 
-    logger.debug("Searching for video with tags: " + ' '.join(tag_list))
-
-    #get filename of movie with lowest non-neg watched value which is not the same as previous and which matches all passed tags
-    cur.execute("SELECT filename FROM movies_fts WHERE filename<>? AND watched>-1 AND tags MATCH ? ORDER BY watched ASC LIMIT 1", (previous_video,joined_tags,))
+    cur.execute("SELECT filename FROM movies_fts WHERE watched>-1 AND filename<>? AND tags MATCH ? ORDER BY bm25(movies_fts), watched", (previous_video, joined_tags,))
     temp = cur.fetchone()
 
+    if temp is None:
+        logger.debug("No match found. Querying for best watched value.")
+        return get_next_ignore_tags(previous_video)
+
+    next_video = temp[0]
+
     db.close()
 
-    #if above query got a hit, return that filename
-    if temp is not None:
-        return temp[0]
-    
-    #if above query got no hit and size of passed tag list >1, call this function again with least priority tag pruned off
-    elif len(tag_list) > 1:
-        return get_best_match(previous_video, prune_tag_list(tag_list))
-    
-    #if above query got no hits and that was the last tag to search, just get the movie with the lowest non-neg watched value
-    else:
-        return get_next_ignore_tags()
-
-"""
-Name:       get_next_ignore_tags
-Purpose:    Return the filename of the video with the lowest non-negative watched value. Tie goes to "lowest" filename
-Parameter:  none
-Return:     STRING representing video filename
-"""
-def get_next_ignore_tags():
-    db, cur = get_db_instance()
-    
-    logger.debug("Selecting video with lowest non-negative watched value.")
-    #query and return the filename of the movie with the lowest non-negative watched value (tie goes to "lowest" filename)
-    cur.execute("SELECT filename FROM movies WHERE watched>-1 ORDER BY watched ASC LIMIT 1")
-    next_video = cur.fetchone()[0]
-    
-    db.close()
-    
+    logger.debug("Best match for queried tags (%s) is: %s", ','.join(tag_list), next_video)
     return next_video
-
-"""
-Name:       fts_create_and_copy
-Purpose:    Create a virtual movies table and copy all rows from its physical counterpart.
-            Don't forget to drop it after done using it wherever you call this function.
-Parameter:  none
-Return:     none
-"""
-def fts_create_and_copy():
-    db, cur = get_db_instance()
-
-    cur.execute("DROP TABLE IF EXISTS movies_fts")
-
-    cur.execute("CREATE VIRTUAL TABLE movies_fts USING fts5 (filename, tags, watched)")
-    cur.execute("INSERT INTO movies_fts (filename, tags, watched) SELECT filename, tags, watched FROM movies WHERE watched>-1")
-
-    db.commit()
-    db.close()
 
 """
 Name:       update_prev_get_next
@@ -312,18 +272,21 @@ Purpose:    Essentially the driver function for previous video update and next v
 Parameter:  none
 Return:     none
 """
-def update_prev_filter_next(previous_video, attention, tag_list):
+def update_prev_get_next(previous_video, attention, tag_list):
     db, cur = get_db_instance()
 
-    #if no videos remain with watched value >-1, return previous to replay it
+    #if no videos remain with watched value >-1, return previous to trigger 'No videos' page
     if count_unwatched()==0:
         db.close()
         return previous_video
-
+    
+    update_watched(previous_video, attention)
+    
     #if no filter tags were passed, get video with lowest non-neg watched value
     if not tag_list:
         db.close()
-        return get_next_ignore_tags()
+        logger.debug("No filter tags passed. Querying for best watched value.")
+        return get_next_ignore_tags(previous_video)
 
     #if one or more filter tags were passed, start searching for videos matching passed tags
     else:
