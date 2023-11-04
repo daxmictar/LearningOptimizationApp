@@ -1,6 +1,5 @@
 import sqlite3
 from tools.logging import logger
-from functools import reduce
 
 """
 Name:       get_db
@@ -197,31 +196,27 @@ def get_tags(movie):
 
     return tag_list
 
-"""         THIS FUNCTION IS INEFFICIENT AND SHOULD BE REFACTORED BEFORE USE IN AN OFFICIAL BUILD/DEMO
+"""
 Name:       get_matching_videos
-Purpose:    Get a list of video filenames which match all of the tags in the passed list of tags.
-            (currently does not discriminate by watched attribute value.
+Purpose:    Get a list of videos whose tags match all of those in the passed list
+            (does not discriminate by watched attribute value)
 Parameter:  LIST OF STRINGS representing tags
-Return:     LIST OF STRINGS representing video filenames
+Return:     LIST OF STRINGS representing video filenames (NONE if no results)
 """
 def get_matching_videos(tag_list):
     db, cur = get_db_instance()
+
+    #join tags in passed list into format for use in query below
+    joined_tags = ' AND '.join(tag_list)
+
+    #create virtual copy of movies table to allow use of MATCH in query
+    fts_create_and_copy()
     
-    #initiate list of lists, where each list contains the results of a query for one tag
-    superlist = []
-    
-    #iterate through passed list
-    for tag in tag_list:
-        #query for list of filenames for videos which have the current tag
-        cur.execute("SELECT filename FROM movies WHERE (INSTR(tags, ?))>0", (tag,))
-        
-        #append list from above query to superlist
-        superlist.append(cur.fetchall())
-        
+    #query for filename of video matching all passed tags
+    cur.execute("SELECT filename FROM movies_fts WHERE tags MATCH ?", (joined_tags,))
+    match_list = cur.fetchall()
+
     db.close()
-    
-    #create new list which contains only common elements (filenames) between all lists in superlist
-    match_list = list(reduce(lambda i, j: i & j, (set(x) for x in superlist)))
     
     return match_list
 
