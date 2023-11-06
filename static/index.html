@@ -46,6 +46,68 @@
 					console.log(response);
 				});
 		}
+
+		function loadDebugMode() {
+            // check for ?debug_mode=true	
+            const urlParams = new URLSearchParams(window.location.search);
+            const isInDebugMode = urlParams.has("debug_mode") && (urlParams.get("debug_mode") === "true");
+            console.log("Is index.html in debug_mode? == " + isInDebugMode);
+
+            const userAgent = navigator.userAgent;
+			const validBrowser = userAgent.includes("Chrome") || userAgent.includes("Edge");
+			console.log("Is browser valid? == " + validBrowser);
+
+            // so far, this feature ONLY works in Chrome or Edge                                   		    
+            if (validBrowser && isInDebugMode) {
+				console.log("Select directory button is active");
+
+             	const listDirButton = document.getElementById("listDirectoryButton");
+             	const movieDropDown = document.getElementById("Movies");
+
+             	listDirButton.addEventListener("click", async () => {
+                	try {
+                        // this is the function that is browser specific (also noted as experimental)
+                        const dirHandle = await window.showDirectoryPicker(); // directory
+                        const entries = dirHandle.values();
+
+                		// asynchronously read all of the files and add them to the list.
+                 		for await (const entry of entries) {
+							if (entry.name.includes(".mp4")) {
+								const listItem = document.createElement("option");
+								listItem.value = entry.name;
+								listItem.textContent = entry.name;
+								movieDropDown.appendChild(listItem);
+							}
+                 		}
+         			} catch (error) {
+             			console.log(error);
+            		}
+    			});
+			} else { // hides on non-debug_mode
+				document
+					.getElementById("listDirectoryButton")
+					.style = "visibility:hidden";
+				
+				document
+					.getElementById("Movies")
+					.style = "visibility:hidden";
+
+				document
+					.getElementById("selectMovieButton")
+					.style = "visibility:hidden";
+			}
+		}
+
+		function getSelectedText(elementId) {
+			// jquery function to get the text of a selected element
+			var selected_text = $("#" + elementId + " option:selected").text();
+			
+			if (!selected_text) {
+				return null;
+			}
+
+			return selected_text;
+		}
 	</script>
 
 	<center>
@@ -53,6 +115,13 @@
 			<source id="video_source" src="movie.mp4" type="video/mp4">
 				Your browser does not support the video tag.
 		</video>
+
+		<center>
+			<button id="listDirectoryButton">Select Directory</button>
+		</center>
+
+		<select name="Movies" id="Movies">Movies</select>
+		<button id="selectMovieButton">Select Movie</button>
 	</center>
 
 	<script>
@@ -71,19 +140,31 @@
 			console.log("Source in Listener: ");
 			console.log(prev_video);
 			play_end(prev_video);
-		})
+		});
+
+		document.getElementById("selectMovieButton").addEventListener("click", () => {
+            var video = document.getElementById("video")
+			var video_src = document.getElementById("video_source")
+
+			// use helper function to get the currently selected text from drop down
+			video_src.setAttribute("src", getSelectedText("Movies"));
+
+            //Load the video
+            video.load();
+		});
 
 		window.onload = function(){
 			console.log("Grabbing location: " + window.location);
-
 			const urlParams = new URLSearchParams(window.location.search);
             const variable = urlParams.get('next_video');
             console.log("Grabbing variable: " + variable);
 
+			loadDebugMode();
+
 			if(variable != null){
 				//Grab the video and the video source
-				video = document.getElementById("video")
-				video_source = document.getElementById("video_source")
+				video = document.getElementById("video");
+				video_source = document.getElementById("video_source");
 				
 				//Set the source to the new video recieved from server
 				video_source.setAttribute("src", variable);
@@ -92,7 +173,6 @@
 				video.load();
 			}
 		}
-		
 	</script>
 
     </body>
