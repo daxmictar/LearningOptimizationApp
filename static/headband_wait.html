@@ -16,6 +16,8 @@
             Keep the headband nearby, so as to not lose connection!
             <br><br>
             Check if the battery is charged.
+            <br><br>
+            <button id="goToTryAgainButton">Stop Connection</button>
         </p>
     </center>
     <script>
@@ -47,6 +49,12 @@
         }
 
         headbandWait();
+
+        document
+            .getElementById("goToTryAgainButton")
+            .addEventListener("click", () => {
+                window.location.href = "try_again.html";
+            });
 
     </script>
 </body>
