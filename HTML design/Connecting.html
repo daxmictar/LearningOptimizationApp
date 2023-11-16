@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Connect Headband</title>
+  <link rel="stylesheet" href="login-page.css">
+  <script defer src="login-page.js"></script>
+  <style>
+  html {
+    height: 100%;
+  }
+  
+  body {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    background-color: #3a3a3a;
+  }
+  
+  #main-holder {
+    width: 50%;
+    height: 70%;
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 7px;
+    box-shadow: 0px 0px 5px 2px black;
+  }
+
+  #connecting-form {
+    align-self: flex-start;
+    display: grid;
+    justify-items: center;
+    align-items: center;
+  }
+ 
+ .postButton{
+  width: 100%;
+  font-size: large;
+    padding: 7px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    background-color: #3a3a3a;
+    cursor: pointer;
+    outline: none;
+    margin-bottom: 50%;
+
+ }
+ .debugMode{
+  width: 30%;
+  
+    padding: 7px;
+    border: none;
+    border-radius: 5px;
+    color: #3a3a3a;
+    font-weight: bold;
+    background-color:white;
+    cursor: pointer;
+    outline: none;
+ }
+  </style>
+</head>
+
+<body>
+  <main id="main-holder">
+    <h1 id="connecting-header">Connect headband</h1>
+  
+    
+    <form id="connecting-form">
+      <button class="postButton" id="postButton">Scan for available headbands</button>
+      <button class="debugMode" id="debugMode">DEBUG</button>
+    </form>
+  
+  </main>
+</body>
+
+</html>
