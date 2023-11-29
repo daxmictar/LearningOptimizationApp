@@ -6,9 +6,9 @@ from tools.headband import *
 def handle_request():
     status = headband_is_connected()
 
-    logger.debug("Checking Headband Again")
+    logger.debug("Checking Headband Connection")
 
-    if status is True:
+    if status == True:
         return ["Connected"]
 
     return ["Not Connected"]

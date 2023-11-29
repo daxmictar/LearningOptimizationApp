@@ -118,8 +118,7 @@ def get_raw_spectral_values_list(emotions: EmotionalMath, print_data=False) -> L
 
     if print_data:
         for i in range(emotions.read_spectral_data_percents_arr_size()):
-            print("{}: {} {} {} {} {}".format(i,
-                                                percents[i].alpha,
+            print("{}: {} {} {} {} {}".format(i,percents[i].alpha,
                                                 percents[i].beta,
                                                 percents[i].gamma,
                                                 percents[i].delta,
