@@ -100,7 +100,7 @@ def refresh_db():
     cur.execute("INSERT INTO tags VALUES ('Beach', 1, 20)")
     cur.execute("INSERT INTO tags VALUES ('Bright', 1, 20)")
     cur.execute("INSERT INTO tags VALUES ('Bus', 1, 20)")
-    cur.execute("INSERT INTO tags VALUES ('Long', .5 20)")
+    cur.execute("INSERT INTO tags VALUES ('Long', .5, 20)")
     cur.execute("INSERT INTO tags VALUES ('Medium', .5, 20)")
     cur.execute("INSERT INTO tags VALUES ('Person', 1, 20)")
     cur.execute("INSERT INTO tags VALUES ('Plants', 1, 20)")
@@ -243,7 +243,7 @@ def update_tags_favor(filename, attention, score):
         attention_modifier = attention #set modifier to 1 if attention is 1/true
 
     #calculate change to tag favor based on user post-review score and attention modifier
-    change_to_favor = (score - 3) + 2*(attention_modifier)
+    change_to_favor = (score - 3)/2 + 2*(attention_modifier)
 
     #if change is positive, add to favor (to a maximum of 39) for all tags in list
     if change_to_favor > 0:
