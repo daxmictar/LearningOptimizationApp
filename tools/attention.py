@@ -11,7 +11,6 @@ from em_st_artifacts.utils.lib_settings import MathLibSetting, ArtifactDetectSet
 
 from tools.logging import logger
 
-
 CALIBRATION_LENGTH = 8
 
 NWINS_SKIP_AFTER_ARTIFACT = 10
@@ -30,10 +29,15 @@ SHORT_ARTIFACT_DETECT_SETTING = ShortArtifactDetectSetting(ampl_art_extremum_bor
 
 MENTAL_AND_SPECTRAL_SETTING = MentalAndSpectralSetting()
 
+# global vars for storing data
+
+attention_handler = None
+
+attention_data = None
+
 @dataclass
 class BrainDataInfo:
     brain_data: List[MindData]
-
 
 
 def setup_emotions() -> EmotionalMath:
@@ -51,6 +55,9 @@ def setup_emotions() -> EmotionalMath:
     return emotions
 
 
+def is_emotion_object_ready():
+    return attention_handler == None
+
 def process_emotional_states(emotions: EmotionalMath, raw_data: List[RawChannels]) -> (float, float, float, float):
     """
         Takes an EmotionalMath object and reads the emotional states from the data being processed by it.
@@ -58,7 +65,7 @@ def process_emotional_states(emotions: EmotionalMath, raw_data: List[RawChannels
         :params:
             emotions: EmotionalMath - The emotion object to be read from
 
-        :return:
+        :produces:
             A tuple with values related to the brain data
             0 - Relative Attention Value
             1 - Relative Relaxation Value 
@@ -124,3 +131,4 @@ def get_raw_spectral_values_list(emotions: EmotionalMath, print_data=False) -> L
                                                 percents[i].delta,
                                                 percents[i].theta))
 
+    return percents
