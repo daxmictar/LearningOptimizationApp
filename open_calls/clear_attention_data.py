@@ -2,15 +2,9 @@ from flask import request, g
 from flask_json import FlaskJSON, JsonError, json_response, as_json
 from tools.logging import logger
 
-from tools.attention import attention_handler, process_emotional_states
-
-CLEAR_MESSAGE = "Attention Data Cleared"
-
-def clear_data():
-    attention_handler = None
-    logger.log(f"{CLEAR_MESSAGE}")
+from tools.attention import reset_attention_data, ATTENTION_CLEARED
 
 def handle_request():
-    clear_data()
+    reset_attention_data(True)
 
-    return [CLEAR_MESSAGE]
+    return [ATTENTION_CLEARED]
