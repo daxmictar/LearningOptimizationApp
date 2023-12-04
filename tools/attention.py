@@ -46,7 +46,9 @@ attention_data: list[RawChannels] = []
 # trying this with async
 # Goal: set a flag that maintains the attention data collection loop
 # it will stop when the post to 'end_attention' is called.
-attention_capture = asyncio.Event()
+attention_capture_conc = asyncio.Event()
+
+attention_capture: bool = False
 
 # API Return Messages
 
@@ -61,12 +63,15 @@ ATTENTION_STARTED_ERROR = "Started Attention Error"
 # State confirmation messages
 __ATTENTION_READY = "Attention object is READY"
 __ATTENTION_NOT_READY = "Attention object is NOT READY"
-__ATTENTION_STOPPING = "Async loop for data collection STOPPED"
-__ATTENTION_DATA_COLLECTED = "Async loop for data collection FINISHED"
-__ATTENTION_RESET_ERROR = "Async loop stopped during data collection ERROR"
+__ATTENTION_STOPPING = "Data collection STOPPED"
+__ATTENTION_DATA_COLLECTED = "Data collection FINISHED"
+__ATTENTION_DATA_FILLED = "Data collection sucessfully FILLED"
+
+__ATTENTION_RESET_ERROR = "Attempted stop during data collection ERROR"
+__ATTENTION_DATA_NONE = "No attention data GENERATED"
 
 
-async def start_attention_capture(log=False):
+async def start_attention_capture_conc(log=False):
     """
         Starts the attention capture through an async process. 
         Will continue until the stop_attention_capture function is called.
@@ -78,7 +83,21 @@ async def start_attention_capture(log=False):
         attention_data.append(RawChannels(3, 1))
 
     if log:
-        logger.log(__ATTENTION_DATA_COLLECTED)
+        logger.debug(__ATTENTION_DATA_COLLECTED)
+
+def start_attention_capture(log=False):
+    """
+        Starts the attention capture process.
+        Will continue until the stop_attention_capture function is called.
+    """
+    global attention_data
+
+    # async flag is FALSE if the loop is running
+    while attention_capture == True:
+        attention_data.append(RawChannels(3, 1))
+
+    if log:
+        logger.debug(__ATTENTION_DATA_COLLECTED)
 
 
 def end_capturing() -> bool:
@@ -91,7 +110,7 @@ def end_capturing() -> bool:
     return attention_capture.is_set()
 
 
-def stop_attention_capture(log=False):
+def stop_attention_capture_conc(log=False):
     """ 
         Stops the data collection for the attention_data list by setting
         the async flag to TRUE.
@@ -102,7 +121,20 @@ def stop_attention_capture(log=False):
     attention_capture.set()
 
     if log: 
-        logger.log(__ATTENTION_STOPPING)
+        logger.debug(__ATTENTION_STOPPING)
+
+def stop_attention_capture(log=False):
+    """ 
+        Stops the data collection for the attention_data list by setting
+        the the flag to FALSE.
+    """
+    global attention_capture
+
+    attention_capture = False
+
+    if log: 
+        logger.debug(__ATTENTION_STOPPING)
+
 
 
 def reset_attention_data(log=False) -> bool:
@@ -119,7 +151,7 @@ def reset_attention_data(log=False) -> bool:
     # can't reset if in the middle of capturing data
     if not end_capturing():
         if log:
-            log.logger(__ATTENTION_RESET_ERROR)
+            logger.debug(__ATTENTION_RESET_ERROR)
         return False
 
     # reset all global vars
@@ -156,7 +188,7 @@ def is_emotion_object_ready():
     return attention_handler == None
 
 
-def process_emotional_states() -> MindData:
+def process_emotional_states(log=False) -> MindData | None:
     """
         :return:
             MindData object with percentage values of brain states.
@@ -165,7 +197,7 @@ def process_emotional_states() -> MindData:
 
     if len(attention_data) == 0:
         logger.debug("No data present to parse emotional states")
-        return
+        return None
 
     # may need to processes this in intermittent API calls for efficiency
     if attention_handler != None and isinstance(EmotionalMath):
@@ -182,6 +214,10 @@ def get_mind_data(log=False) -> MindData:
     global attention_handler
 
     mind_data = attention_handler.read_average_mental_data(1)
+
+    if not mind_data:
+        return None
+
     if log:
         logger.debug("Mind Data: {} {} {} {}".format(mind_data.rel_attention,
                                                      mind_data.rel_relaxation,

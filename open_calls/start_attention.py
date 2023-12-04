@@ -9,16 +9,22 @@ from tools.attention import start_attention_capture, is_emotion_object_ready, AT
 def handle_request():
 
     ready = is_emotion_object_ready()
-        
+
+    if ready:        
+        start_attention_capture(True)        
+
+        return [ATTENTION_STARTED]
+
+    return [ATTENTION_STARTED_ERROR]
+
+def concurrent_collection_process():
     if ready:
         loop = asyncio.get_event_loop()
 
         try:
-            loop.run_until_complete(start_attention_capture(True))
+            loop.run_until_complete(start_attention_capture_conc(True))
         except Exception:
             logger.log("Bad Async Loop, check start_attention.py")
             return [ATTENTION_STARTED_ERROR]  
         finally:
             loop.close()
-
-    return [ATTENTION_STARTED]

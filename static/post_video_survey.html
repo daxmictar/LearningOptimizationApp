@@ -61,6 +61,17 @@
                 });
         }
 
+		function attention_fill() {
+			// make a POST to fill_attention_data to process data for attention
+			// related services
+			$.post("/open_api/fill_attention_data", { "data" : "Filling Attention Collection" }, 
+				(data, textStatus) => {
+					console.log(data)
+				}, 
+				"json")
+				.fail ((response) => console.log("end_attention call failed"));
+		}
+
         //survey.onComplete.add(alertResults);
 
         survey.onValueChanged.add(alertResults);
@@ -69,6 +80,9 @@
         $(function() {
             $("#surveyContainer").Survey({ model: survey });
         });
+
+        // processes attention values by default
+        attention_fill();
 
         document
             .getElementById("endSessionButton")
