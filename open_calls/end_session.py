@@ -1,14 +1,22 @@
 from tools.logging import logger
 from tools.session import *
 
+from neurosdk.cmn_types import * 
+
+from open_calls.headband_wait import gl_sensor
+
+
 def handle_request():
     logger.debug("Requesting END_SESSION")
-    
+
     try:
         end_session()
     except Exception as err:
         logger.debug(f"{err}")
         return INVALID_SESSION
+
+    # stop the resistance checking after the session has ended
+    gl_sensor.exec_command(SensorCommand.CommandStopResist)
 
     session_time = calculate_session_time()
 
