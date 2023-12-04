@@ -41,7 +41,7 @@ MENTAL_AND_SPECTRAL_SETTING = MentalAndSpectralSetting()
 
 # global vars for storing data
 attention_handler: EmotionalMath = None
-attention_data: List[RawChannels] = []
+attention_data: list[RawChannels] = []
 
 # trying this with async
 # Goal: set a flag that maintains the attention data collection loop
@@ -191,7 +191,7 @@ def get_mind_data(log=False) -> MindData:
     return mind_data
 
 
-def get_mind_data_list(log=False) -> List[MindData]:
+def get_mind_data_list(log=False) -> list[MindData]:
     global attention_handler
 
     mind_data_list = attention_handler.read_mental_data_arr()
@@ -215,7 +215,7 @@ def get_raw_spectral_values(log=False) -> RawSpectVals:
     return raw_spect_vals
 
 
-def get_raw_spectral_values_list(log=False) -> List[SpectralDataPercents]: 
+def get_raw_spectral_values_list(log=False) -> list[SpectralDataPercents]: 
     global attention_handler
 
     percents = attention_handler.read_spectral_data_percents_arr()
