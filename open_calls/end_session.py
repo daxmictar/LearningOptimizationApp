@@ -8,7 +8,7 @@ def handle_request():
         end_session()
     except Exception as err:
         logger.debug(f"{err}")
-        return INVALID_SESSION
+        return [INVALID_SESSION]
 
     session_time = calculate_session_time()
 
@@ -21,4 +21,4 @@ def handle_request():
     else:
         logger.debug(f"Elapsed time for session is {session_time:.2f} seconds")
 
-    return END_SESSION
+    return [END_SESSION]

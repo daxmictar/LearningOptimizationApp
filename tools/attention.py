@@ -51,14 +51,14 @@ attention_capture_conc = asyncio.Event()
 attention_capture: bool = False
 
 # API Return Messages
-
 ATTENTION_CREATED = "Created Attention"
 ATTENTION_STARTED = "Started Attention"
 ATTENTION_CLEARED = "Cleared Attention"
 ATTENTION_ENDED   = "Ended Attention"
 ATTENTION_FILLED  = "Filled Attention"
 
-ATTENTION_STARTED_ERROR = "Started Attention Error"
+ATTENTION_STARTED_ERROR = "Attempted function without setup ERROR"
+ATTENTION_CLEARED_ERROR = "Attempted stop during data collection ERROR"
 
 # State confirmation messages
 __ATTENTION_READY = "Attention object is READY"
@@ -67,99 +67,8 @@ __ATTENTION_STOPPING = "Data collection STOPPED"
 __ATTENTION_DATA_COLLECTED = "Data collection FINISHED"
 __ATTENTION_DATA_FILLED = "Data collection sucessfully FILLED"
 
-__ATTENTION_RESET_ERROR = "Attempted stop during data collection ERROR"
 __ATTENTION_DATA_NONE = "No attention data GENERATED"
-
-
-async def start_attention_capture_conc(log=False):
-    """
-        Starts the attention capture through an async process. 
-        Will continue until the stop_attention_capture function is called.
-    """
-    global attention_data
-
-    # async flag is FALSE if the loop is running
-    while not end_capturing:
-        attention_data.append(RawChannels(3, 1))
-
-    if log:
-        logger.debug(__ATTENTION_DATA_COLLECTED)
-
-def start_attention_capture(log=False):
-    """
-        Starts the attention capture process.
-        Will continue until the stop_attention_capture function is called.
-    """
-    global attention_data
-
-    # async flag is FALSE if the loop is running
-    while attention_capture == True:
-        attention_data.append(RawChannels(3, 1))
-
-    if log:
-        logger.debug(__ATTENTION_DATA_COLLECTED)
-
-
-def end_capturing() -> bool:
-    """
-        Returns the state of the async flag.
-        If True, then it has been SET and the capture loop should STOP.
-    """
-    global attention_capture
-
-    return attention_capture.is_set()
-
-
-def stop_attention_capture_conc(log=False):
-    """ 
-        Stops the data collection for the attention_data list by setting
-        the async flag to TRUE.
-    """
-    global attention_capture
-
-    # set the async flag to TRUE
-    attention_capture.set()
-
-    if log: 
-        logger.debug(__ATTENTION_STOPPING)
-
-def stop_attention_capture(log=False):
-    """ 
-        Stops the data collection for the attention_data list by setting
-        the the flag to FALSE.
-    """
-    global attention_capture
-
-    attention_capture = False
-
-    if log: 
-        logger.debug(__ATTENTION_STOPPING)
-
-
-
-def reset_attention_data(log=False) -> bool:
-    """ 
-        Reset the attention_data list to an empty list. All Data
-        collected from the previous video will be lost. Will not work if
-        data collection is occurring (attention_capture is set to True).
-
-        :return:
-            True if the list was reset.
-    """
-    global attention_handler, attention_data, attention_capture
-
-    # can't reset if in the middle of capturing data
-    if not end_capturing():
-        if log:
-            logger.debug(__ATTENTION_RESET_ERROR)
-        return False
-
-    # reset all global vars
-    attention_handler = None
-    attention_data = []
-    attention_capture.clear()
-
-    return True
+__ATTENTION_RESET_ERROR = "Attempted to clear during data collection ERROR"
 
 
 def setup_emotions(log=False):
@@ -179,8 +88,126 @@ def setup_emotions(log=False):
     emotions.set_zero_spect_waves(True, 0, 1, 1, 1, 0)
     emotions.set_spect_normalization_by_bands_width(True)
 
+    logger.debug(__ATTENTION_READY) if log else None
+
     attention_handler = emotions
-    
+
+
+async def start_attention_capture_conc(log=False):
+    """
+        Starts the attention capture through an async process. 
+        Will continue until the stop_attention_capture function is called.
+    """
+    global attention_data
+
+    # async flag is FALSE if the loop is running
+    while not end_capturing_conc:
+        attention_data.append(RawChannels(3, 1))
+
+    if log:
+        logger.debug(__ATTENTION_DATA_COLLECTED)
+
+
+def start_attention_capture(log=False):
+    """
+        Starts the attention capture process.
+        Will continue until the stop_attention_capture function is called.
+    """
+    global attention_data, attention_capture
+
+    # async flag is FALSE if the loop is running
+    while attention_capture == True:
+        attention_data.append(RawChannels(3, 1))
+
+    logger.debug(__ATTENTION_DATA_COLLECTED) if log else None
+
+
+def end_capturing_conc() -> bool:
+    """
+        Returns the state of the async flag.
+        If True, then it has been SET and the capture loop should STOP.
+    """
+    global attention_capture_conc
+
+    return attention_capture_conc.is_set()
+
+
+def stop_attention_capture_conc(log=False):
+    """ 
+        Stops the data collection for the attention_data list by setting
+        the async flag to TRUE.
+    """
+    global attention_capture
+
+    # set the async flag to TRUE
+    attention_capture.set()
+
+    if log: 
+        logger.debug(__ATTENTION_STOPPING)
+
+
+def stop_attention_capture(log=False):
+    """ 
+        Stops the data collection for the attention_data list by setting
+        the the flag to FALSE.
+    """
+    global attention_capture
+
+    attention_capture = False
+
+    logger.debug(__ATTENTION_STOPPING) if log else None
+
+
+def reset_attention_data_conc(log=False) -> bool:
+    """ 
+        Concurrent Version 
+
+        Reset the attention_data list to an empty list. All Data
+        collected from the previous video will be lost. Will not work if
+        data collection is occurring (attention_capture is set to True).
+
+        :return:
+            True if the list was reset.
+    """
+    global attention_handler, attention_data, attention_capture
+
+    # can't reset if in the middle of capturing data
+    if not end_capturing_conc():
+        if log:
+            logger.debug(__ATTENTION_RESET_ERROR)
+        return False
+
+    # reset all global vars
+    attention_handler = None
+    attention_data = []
+    attention_capture.clear()
+
+    return True
+
+
+def reset_attention_data(log=False) -> bool:
+    """ 
+        Reset the attention_data list to an empty list. All Data
+        collected from the previous video will be lost. Will not work if
+        data collection is occurring (attention_capture is set to True).
+
+        :return:
+            True if the list was reset.
+    """
+    global attention_handler, attention_data, attention_capture
+
+    # can't reset if in the middle of capturing data
+    if attention_capture == True:
+        logger.debug(__ATTENTION_RESET_ERROR) if log else None
+        return False
+
+    # reset all global vars
+    attention_handler = None
+    attention_data = []
+    attention_capture = False
+
+    return True
+ 
 
 def is_emotion_object_ready():
     global attention_handler
@@ -195,17 +222,25 @@ def process_emotional_states(log=False) -> MindData | None:
     """
     global attention_handler, attention_data
 
+    if attention_handler == None:
+        logger.debug(ATTENTION_STARTED_ERROR) if log else None
+        return None
+
     if len(attention_data) == 0:
-        logger.debug("No data present to parse emotional states")
+        logger.debug(__ATTENTION_DATA_NONE) if log else None
         return None
 
     # may need to processes this in intermittent API calls for efficiency
-    if attention_handler != None and isinstance(EmotionalMath):
-        attention_handler.push_data(raw_data)
+    if attention_handler is isinstance(EmotionalMath):
+        logger.debug("Pushing Data") if log else None
+        attention_handler.push_data(attention_data)
+        logger.debug("Processing Data") if log else None
         attention_handler.process_data_arr()
 
         if attention_handler.is_both_sides_artifacted():
             logger.debug("Both sides are artifacted")
+
+        logger.debug(__ATTENTION_DATA_FILLED) if log else None
 
     return get_mind_data()
 
@@ -213,10 +248,11 @@ def process_emotional_states(log=False) -> MindData | None:
 def get_mind_data(log=False) -> MindData:
     global attention_handler
 
-    mind_data = attention_handler.read_average_mental_data(1)
-
-    if not mind_data:
+    if attention_handler == None:
+        logger.debug(__ATTENTION_NOT_READY) if log else None
         return None
+
+    mind_data = attention_handler.read_average_mental_data(1)
 
     if log:
         logger.debug("Mind Data: {} {} {} {}".format(mind_data.rel_attention,
@@ -230,7 +266,11 @@ def get_mind_data(log=False) -> MindData:
 def get_mind_data_list(log=False) -> list[MindData]:
     global attention_handler
 
+    if attention_handler is None:
+        return None
+
     mind_data_list = attention_handler.read_mental_data_arr()
+
     if log:
         for i in range(attention_handler.read_mental_data_arr_size()):
             print("{}: {} {} {} {}".format(i, mind_data_list[i].rel_attention,
@@ -244,7 +284,11 @@ def get_mind_data_list(log=False) -> list[MindData]:
 def get_raw_spectral_values(log=False) -> RawSpectVals:
     global attention_handler
 
-    raw_spect_vals = emotions.read_raw_spectral_vals()
+    if attention_handler is None:
+        return None
+
+    raw_spect_vals = attention_handler.read_raw_spectral_vals()
+
     if log:
         print("Raw Spect Vals: {} {}".format(raw_spect_vals.alpha, raw_spect_vals.beta))
 
@@ -253,6 +297,9 @@ def get_raw_spectral_values(log=False) -> RawSpectVals:
 
 def get_raw_spectral_values_list(log=False) -> list[SpectralDataPercents]: 
     global attention_handler
+
+    if attention_handler is None:
+        return None
 
     percents = attention_handler.read_spectral_data_percents_arr()
 

@@ -10,6 +10,6 @@ def handle_request():
         start_session()
     except Exception as err:
         logger.debug(f"{err}")
-        return INVALID_SESSION
+        return [INVALID_SESSION]
 
-    return START_SESSION
+    return [START_SESSION]
