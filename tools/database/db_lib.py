@@ -1,4 +1,5 @@
 import sqlite3
+import json
 from tools.logging import logger
 
 """
@@ -87,28 +88,36 @@ def refresh_db():
     cur.execute("DROP TABLE tags")
 
     #create tables
-    cur.execute("CREATE TABLE movies (id INTEGER PRIMARY KEY, filename TEXT NOT NULL, tags TEXT, watched INTEGER)")
+    cur.execute("CREATE TABLE movies (id INTEGER PRIMARY KEY, filename TEXT NOT NULL, tags TEXT NOT NULL, watched INTEGER NOT NULL)")
     cur.execute("CREATE TABLE tags (name TEXT PRIMARY KEY, weight REAL, favor REAL)")
 
-    #insert rows descriptive of movies located in static directory
-    cur.execute("INSERT INTO movies VALUES (0, 'movie.mp4', 'Trees Bus Short', 0)")
-    cur.execute("INSERT INTO movies VALUES (1, 'movie1.mp4', 'Beach Person Water Medium', 0)")
-    cur.execute("INSERT INTO movies VALUES (2, 'movie2.mp4', 'Plants Bright Water Long', 0)")
-    cur.execute("INSERT INTO movies VALUES (3, 'movie3.mp4', 'Trees Plants Long', 0)")
+    f = open("tools/database/movies.json") #open file movies.json
+    dict_list = json.load(f) #create list of dict objects from json file
 
-    #insert rows descriptive of all tags held by movies
-    cur.execute("INSERT INTO tags VALUES ('Beach', 1, 20)")
-    cur.execute("INSERT INTO tags VALUES ('Bright', 1, 20)")
-    cur.execute("INSERT INTO tags VALUES ('Bus', 1, 20)")
-    cur.execute("INSERT INTO tags VALUES ('Long', .5, 20)")
-    cur.execute("INSERT INTO tags VALUES ('Medium', .5, 20)")
-    cur.execute("INSERT INTO tags VALUES ('Person', 1, 20)")
-    cur.execute("INSERT INTO tags VALUES ('Plants', 1, 20)")
-    cur.execute("INSERT INTO tags VALUES ('Short', .5, 20)")
-    cur.execute("INSERT INTO tags VALUES ('Trees', 1, 20)")
-    cur.execute("INSERT INTO tags VALUES ('Water', 1, 20)")
+    movie_id = 0 #initialize counter to assign id primary key to movies
+
+    #loop through list, inserting an entry into movies table for each dictionary object
+    for movie in dict_list:
+        cur.execute("INSERT INTO movies VALUES (?, ?, ?, ?)", (movie_id, movie["filename"], movie["tags"], movie["watched"]))
+        movie_id += 1
+
+    f = open("tools/database/tags.json") #open file tags.json
+    dict_list = json.load(f) #create list of dict objects from json file
+
+    #loop through list, inserting an entry into tags table for each dictionary object
+    for tag in dict_list:
+        cur.execute("INSERT INTO tags VALUES (?, ?, ?)", (tag["name"], tag["weight"], tag["favor"]))
+
+    f.close() #close file
 
     db.commit()
+
+    cur.execute("SELECT * FROM movies")
+    logger.debug(cur.fetchall())
+
+    cur.execute("SELECT * FROM tags")
+    logger.debug(cur.fetchall())
+
     db.close()
 
 """
