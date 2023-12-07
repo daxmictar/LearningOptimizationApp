@@ -22,6 +22,8 @@ def headband_init_scanner() -> Scanner:
         Returns:
             A valid scanner object that scans for a BrainBit sensor
     """
+    global hb
+
     scanner = Scanner([SensorFamily.SensorLEBrainBit])
     logger.debug(f"Created local headband scanner -> {scanner}")
 
@@ -54,6 +56,8 @@ def headband_is_connected() -> bool:
         Returns:
             True if headband object exists
     """
+    global hb
+
     logger.debug("Checking headband connection")
     check = False
 
@@ -73,6 +77,8 @@ def headband_start_signal() -> bool:
         Returns:
             True if a headband exists and could be started.
     """
+    global hb
+
     if not headband_is_connected():
         logger.debug("No headband available to start")
         return False
@@ -89,6 +95,8 @@ def headband_stop_signal() -> bool:
         Returns:
             True if a headband exists and could be stopped.
     """
+    global hb
+
     if not headband_is_connected():
         logger.debug("No headband available to stop")
         return False
