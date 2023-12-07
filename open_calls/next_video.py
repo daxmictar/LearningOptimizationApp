@@ -3,7 +3,7 @@ from tools.logging import logger
 from tools.headband import *
 from neurosdk.cmn_types import * 
 import random
-from tools.database.db_lib import update_prev_get_next, get_tags, getval_watched
+from tools.database.db_lib import update_prev_get_next, getval_watched
 
 # using sensor from headband_wait due to callback
 from open_calls.headband_wait import gl_sensor
@@ -13,12 +13,17 @@ from open_calls.headband_wait import gl_sensor
 #Next step is calculating a likely video based on watched videos tag history and video priority
 def get_next_video(previous_video: str):
     #change this value to affect how the following call of update_prev_get_next updates the watched value of previous video
-    attention = random.getrandbits(1) #currently will set to 0 or 1 randomly
+    #currently sets to 0 or 1 randomly
+    attention = random.getrandbits(1)
+
+    #replace with call to get actual score from post video survey
+    post_video_survey_score = random.randrange(1,5)
 
     #update value of watched for previous video based on value of attention, and get filename for next video
-    #for testing, currently passing previous video's tags as third arg to update_prev_get_next
-    next_video = (update_prev_get_next(previous_video, attention, get_tags(previous_video)))
+    next_video = (update_prev_get_next(previous_video, attention, post_video_survey_score))
 
+    #check if the video that was just selected has already been watched
+    #planning to move this check to within update_prev_get_next
     if getval_watched(next_video) == -1:
         next_video = "No Video"
 
@@ -32,7 +37,7 @@ def handle_request(previous_video):
     next_video = get_next_video(previous_video)
 
     #Log out previous and next video
-    logger.debug("Previous Video: " + previous_video + "\t" + "Next Video: " + next_video)
+    logger.debug("Previous Video: " + previous_video + "    Next Video: " + next_video)
 
     #If there is no headband we stop here
     if gl_sensor == None:
