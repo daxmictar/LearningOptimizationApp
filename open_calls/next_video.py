@@ -12,9 +12,9 @@ from open_calls.headband_wait import gl_sensor
 #Selection is based on the logic described by update_prev_get_next in db_lib.py
 #Next step is calculating a likely video based on watched videos tag history and video priority
 def get_next_video(previous_video: str):
-    #change this value to affect how the following call of update_prev_get_next updates the watched value of previous video
-    #currently sets to 0 or 1 randomly
-    attention = random.getrandbits(1)
+    #replace with call to get actual attention value
+    #currently randomly selects one of the floats in the list below
+    attention = random.choice([0.2, 0.4, 0.6, 0.8, 1.0])
 
     #replace with call to get actual score from post video survey
     post_video_survey_score = random.randrange(1,5)
