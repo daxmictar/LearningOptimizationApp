@@ -18,6 +18,24 @@
         <button id="logOutButton">Log Out</button>
     </center>
 <script>
+    function get_average_attention_time() {
+        return 0.8;
+    }
+
+    function get_total_session_duration() {
+        // 
+    }
+
+    function show_most_watched_tag() {
+        // stub for a tag of "Dog" videos
+        return "Dog"
+    }
+
+    function show_total_session_duration() {
+        // stub for 2 minute session
+        return 2;
+    }
+
     function startSession() {
         $.post("/open_api/start_session", "Starting Session",
             (data, textStatus) => {
