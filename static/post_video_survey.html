@@ -17,8 +17,15 @@
         const surveyJson = {
             elements: [{
                 "type": "rating",
-                "name": "Video Survey",
+                "name": "PreferenceRating",
                 "title": "How happy are you with the last video?",
+                "hideNumber": true,
+                "isRequired": true,
+                "rateType": "smileys"
+                },{
+                "type": "rating",
+                "name": "AttentionRating",
+                "title": "How was your attention last video?",
                 "hideNumber": true,
                 "isRequired": true,
                 "rateType": "smileys"
@@ -36,13 +43,18 @@
                 var name = element_list[i].name;
                 data_object[name] = sender.data[name];
             }
-            
+
             const urlParams = new URLSearchParams(window.location.search);
             const variable = urlParams.get('last_video');
             console.log(variable);
 
+            //add the data variable
+            data_object['data'] = variable;
+
+            console.log(data_object);
+
             //Send over the form data
-            $.post("/open_api/next_video", { 'data' : variable},
+            $.post("/open_api/next_video", data_object,
                 function(data, textStatus) {
                     //Gets called when browser recieves response from server
                     console.log("DATA: ");
@@ -72,9 +84,9 @@
 				.fail ((response) => console.log("end_attention call failed"));
 		}
 
-        //survey.onComplete.add(alertResults);
+        survey.onComplete.add(alertResults);
 
-        survey.onValueChanged.add(alertResults);
+        //survey.onValueChanged.add(alertResults);
         survey.showCompletedPage = false;
 
         $(function() {
