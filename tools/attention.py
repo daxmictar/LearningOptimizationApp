@@ -29,6 +29,8 @@ Code simulation Section
 """
 
 paid_attention: float = 0.00
+attention_valid: bool = False
+
 
 def set_paid_attention(new_attention_val: float, log=False):
     global paid_attention
@@ -37,8 +39,16 @@ def set_paid_attention(new_attention_val: float, log=False):
 
     paid_attention = new_attention_val
 
+    attention_valid = True
+
+
 def get_paid_attention(log=False):
-    global paid_attention
+    global paid_attention, attention_valid
+
+    if attention_valid != True:
+        logger.log("set_attention_paid was not used") if log else None
+        return 0
+
     """ 
         Will update based on user interaction with a button on the JS side.
     """
@@ -63,6 +73,13 @@ def get_paid_attention(log=False):
         logger.debug(debug_msg) 
 
     return paid_attention
+
+
+def reset_attention_paid(log=False):
+    global paid_attention, attention_valid
+
+    paid_attention = 0.0
+    attention_valid = False
 
 
 # calibration settings for EmotionalMath object from sample.py
