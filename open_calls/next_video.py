@@ -30,9 +30,16 @@ def get_next_video(previous_video: str):
     return next_video
 
 
-def handle_request(previous_video):
+def handle_request(previous_video, survey_info):
     from app import data_file
-    
+    from tools.attention import set_paid_attention, get_paid_attention
+
+    print("Survey Info:")
+    print(survey_info['AttentionRating'])
+    print(survey_info['PreferenceRating'])
+
+    set_paid_attention(survey_info['AttentionRating']/5)
+
     #Place holder for finding next video
     next_video = get_next_video(previous_video)
 
