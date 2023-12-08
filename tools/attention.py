@@ -1,5 +1,4 @@
 """
-
 Attention API for collecting attention data and handling its state
 
 Priority Order for API calls:
@@ -23,6 +22,65 @@ from em_st_artifacts.utils.lib_settings import MathLibSetting, ArtifactDetectSet
     MentalAndSpectralSetting
 
 from tools.logging import logger
+
+
+"""
+Code simulation Section
+"""
+
+paid_attention: float = 0.00
+attention_valid: bool = False
+
+
+def set_paid_attention(new_attention_val: float, log=False):
+    global paid_attention
+
+    logger.debug(f"New attention value: {new_attention_val}") if log else None
+
+    paid_attention = new_attention_val
+
+    attention_valid = True
+
+
+def get_paid_attention(log=False):
+    global paid_attention, attention_valid
+
+    if attention_valid != True:
+        logger.log("set_attention_paid was not used") if log else None
+        return 0
+
+    """ 
+        Will update based on user interaction with a button on the JS side.
+    """
+    if log:
+        debug_msg = ""
+        match (paid_attention):
+            case 0.00: 
+                debug_msg = "User paid no attention"
+            case 0.20:
+                debug_msg = "User paid little attention"
+            case 0.40:
+                debug_msg = "User paid some attention"
+            case 0.60:
+                debug_msg = "User paid moderate attention"
+            case 0.80:
+                debug_msg = "User paid significant attention"
+            case 1.00:
+                debug_msg = "User paid full attention"
+            case _:
+                debug_msg = "Bad value"
+
+        logger.debug(debug_msg) 
+
+    return paid_attention
+
+
+def reset_attention_paid(log=False):
+    global paid_attention, attention_valid
+
+    paid_attention = 0.0
+    attention_valid = False
+
 
 # calibration settings for EmotionalMath object from sample.py
 CALIBRATION_LENGTH = 8
