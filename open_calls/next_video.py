@@ -1,26 +1,18 @@
 from flask import request, g                                                                 
 from tools.logging import logger   
 from tools.headband import *
-from neurosdk.cmn_types import * 
-import random
-from tools.database.db_lib import update_prev_get_next, getval_watched
+from neurosdk.cmn_types import *
 
 # using sensor from headband_wait due to callback
 from open_calls.headband_wait import gl_sensor
 
 #Returns the next video based on the last video
 #Selection is based on the logic described by update_prev_get_next in db_lib.py
-#Next step is calculating a likely video based on watched videos tag history and video priority
-def get_next_video(previous_video: str):
-    #replace with call to get actual attention value
-    #currently randomly selects one of the floats in the list below
-    attention = random.choice([0.2, 0.4, 0.6, 0.8, 1.0])
-
-    #replace with call to get actual score from post video survey
-    post_video_survey_score = random.randrange(1,5)
-
-    #update value of watched for previous video based on value of attention, and get filename for next video
-    next_video = (update_prev_get_next(previous_video, attention, post_video_survey_score))
+def get_next_video(previous_video: str, attention_rating, preference_rating):
+    from tools.database.db_lib import update_prev_get_next, getval_watched
+    
+    #update value of watched for previous video based on values of attention and preference rating, and get filename for next video
+    next_video = (update_prev_get_next(previous_video, attention_rating, preference_rating))
 
     #check if the video that was just selected has already been watched
     #planning to move this check to within update_prev_get_next
@@ -34,14 +26,10 @@ def handle_request(previous_video, survey_info):
     from app import data_file
     from tools.attention import set_paid_attention, get_paid_attention
 
-    print("Survey Info:")
-    print(survey_info['AttentionRating'])
-    print(survey_info['PreferenceRating'])
-
-    set_paid_attention(survey_info['AttentionRating']/5)
-
+    set_paid_attention(float(survey_info['AttentionRating']))
+    
     #Place holder for finding next video
-    next_video = get_next_video(previous_video)
+    next_video = get_next_video(previous_video, get_paid_attention(), float(survey_info['PreferenceRating']))
 
     #Log out previous and next video
     logger.debug("Previous Video: " + previous_video + "    Next Video: " + next_video)

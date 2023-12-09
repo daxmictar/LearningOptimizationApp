@@ -239,9 +239,9 @@ def update_tags_favor(filename, attention, score):
     tag_list = (cur.fetchone()[0]).split()
 
     #calculate change to tag favor based on user post-review score and attention modifier
-    change_to_favor = (score - 3) / 2 + ((attention * 5) - 3)
+    change_to_favor = (score - 3) / 2 + (attention - 3)
 
-    logger.debug("Attention=%0.1f   Review=%d   Change=%0.2f" % (attention, score, change_to_favor))
+    logger.debug("Attention==%0.0f   Review==%d   Favor+=%0.1f" % (attention, score, change_to_favor))
 
     #if change is positive, add to favor (to a maximum of 39) for all tags in list
     if change_to_favor > 0:
@@ -338,7 +338,7 @@ def get_best_match(previous_video, tag_list):
 
     db.close()
 
-    logger.debug("Best match for queried tags (%s) is: %s" % (','.join(tag_list), next_video))
+    logger.debug("Best match for top tags (%s) is: %s" % (','.join(tag_list), next_video))
     return next_video
 
 """
