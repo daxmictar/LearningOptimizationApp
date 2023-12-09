@@ -1,49 +1,50 @@
 [
 	{
-		"filename":"Algebra_1_Help_MathHelp.mp4"
-		"tags":"Algebra len=short pace=fast delv=human_presenter variables"
+		"filename": "Algebra_1_Help_MathHelp.mp4",
+		"tags": "Algebra len=short pace=fast delv=human_presenter variables"
 	},
 	{
-		"filename":"Algebra_Basics_Solving_Basic_Equations_Quick_Review!.mp4"
-		"tags":"Algebra len=long pace=slow delv=human_narrator variables"
+		"filename": "Algebra_Basics_Solving_Basic_Equations_Quick_Review!.mp4",
+		"tags": "Algebra len=long pace=slow delv=human_narrator variables"
 	},
 	{
-		"filename":"All_Of_Algebra_1_Explained_In_5_Minutes.mp4"
-		"tags":"Algebra len=short pace=fast delv=human_narrator variables comedic"
+		"filename": "All_Of_Algebra_1_Explained_In_5_Minutes.mp4",
+		"tags": "Algebra len=short pace=fast delv=human_narrator variables comedic"
 	},
 	{
-		"filename":"Basic_geometry_language_and_labels_Introduction_to_Euclidean_geometry_Geometry_Khan_Academy.mp4"
-		"tags":"Geometry len=long pace=slow delv=human_narrator overview"
+		"filename": "Basic_geometry_language_and_labels_Introduction_to_Euclidean_geometry_Geometry_Khan_Academy.mp4",
+		"tags": "Geometry len=long pace=slow delv=human_narrator overview"
 	},
 	{
-		"filename":"Descriptive_Statistics_vs_Inferential_Statistics.mp4"
-		"tagas":"Statistics len=medium pace=slow delv=human_narrator inferential"
+		"filename": "Descriptive_Statistics_vs_Inferential_Statistics.mp4",
+		"tags": "Statistics len=medium pace=slow delv=human_narrator inferential"
 	},
 	{
-		"filename":"Fastest_Geometry_Summary.mp4"
-		"tags":"Geometry len=short pace=fast delv=human_presenter overview"
+		"filename": "Fastest_Geometry_Summary.mp4",
+		"tags": "Geometry len=short pace=fast delv=human_presenter overview"
 	},
 	{
-		"filename":"Geometry_Introduction_to_Geometry_(Level_1_of_7)_Basics.mp4"
-		"tags":"Geometry len=long pace=medium delv=human_narrator overview"
+		"filename": "Geometry_Introduction_to_Geometry_(Level_1_of_7)_Basics.mp4",
+		"tags": "Geometry len=long pace=medium delv=human_narrator overview"
 	},
 	{
-		"filename":"How_do_you_evaluate_for_tangent_function_on_unit_circle.mp4"
-		"tags":"Trigonometry len=short pace=medium delv=human_presenter sin_cos_tan"
+		"filename": "How_do_you_evaluate_for_tangent_function_on_unit_circle.mp4",
+		"tags": "Trigonometry len=short pace=medium delv=human_presenter sin_cos_tan"
 	},
 	{
-		"filename":"Math_Antics_Angle_Basics.mp4"
-		"tags":"Geometry len=medium pace=medium delv=human_presenter angles comedic"
+		"filename": "Math_Antics_Angle_Basics.mp4",
+		"tags": "Geometry len=medium pace=medium delv=human_presenter angles comedic"
 	},
 	{
-		"filename":"Solving_Polynomial_Equations_MathHelp_Algebra_Help.mp4"
-		"tags":"Algebra len=short pace=medium delv=human_presenter polynomial"
+		"filename": "Solving_Polynomial_Equations_MathHelp_Algebra_Help.mp4",
+		"tags": "Algebra len=short pace=medium delv=human_presenter polynomial"
 	},
 	{
-		"filename":"Standard_deviation_simply_explained.mp4"
-		"tags":"Statistics len=medium pace=medium delv=human_narrator standard_deviation"
+		"filename": "Standard_deviation_simply_explained.mp4",
+		"tags": "Statistics len=medium pace=medium delv=human_narrator standard_deviation"
 	},
 	{
-		"filename":"Using_the_period_to_help_evaluate_a_trig_function_for_an_angle_free_math_help.mp4"
-		"tags":"Trigonometry len=short pace=fast delv=human_presenter unit_circle"
+		"filename": "Using_the_period_to_help_evaluate_a_trig_function_for_an_angle_free_math_help.mp4",
+		"tags": "Trigonometry len=short pace=fast delv=human_presenter unit_circle"
 	}
+]
