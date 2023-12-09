@@ -33,7 +33,7 @@ attention_valid: bool = False
 
 
 def set_paid_attention(new_attention_val: float, log=False):
-    global paid_attention
+    global paid_attention, attention_valid
 
     logger.debug(f"New attention value: {new_attention_val}") if log else None
 
