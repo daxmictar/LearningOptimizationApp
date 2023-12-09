@@ -2,6 +2,8 @@ import sqlite3
 import json
 from tools.logging import logger
 
+num_tags = 0
+
 """
 Name:       get_db
 Purpose:    Create and return a sqlite3 database connection.
@@ -81,6 +83,8 @@ INFO:       movies/watched:
                 float in range [1,39] adjusted according to user review and attention during movie
 """
 def refresh_db():
+    global num_tags
+    
     db, cur = get_db_instance()
 
     #if tables exist, drop before (re)creation
@@ -107,16 +111,11 @@ def refresh_db():
     #loop through list, inserting an entry into tags table for each dictionary object
     for tag in dict_list:
         cur.execute("INSERT INTO tags VALUES (?, ?, ?)", (tag["name"], tag["weight"], tag["favor"]))
+        num_tags += 1
 
     f.close() #close file
 
     db.commit()
-
-    cur.execute("SELECT * FROM movies")
-    logger.debug(cur.fetchall())
-
-    cur.execute("SELECT * FROM tags")
-    logger.debug(cur.fetchall())
 
     db.close()
 
@@ -273,15 +272,17 @@ def update_tags_favor(filename, attention, score):
 
 """
 Name:       get_top_x_tags
-Purpose:    Get a list of the top x tag names by their session priority (weight*favor) (larger number is stronger priority)
+Purpose:    Get a list of the top x tag names by their session priority (weight*favor) (larger number is stronger priority).
+            The first 'skip_rows' results of the query are excluded, allowing for less preferred groups of tags to be queried if more preferred group gets no hits.
 Parameter:  INTEGER representing number of tags names to get
+            INTEGER representing number rows to exclude from the top of the query results
 Return:     LIST OF STRINGS representing tag names
 """
-def get_top_x_tags(x):
+def get_top_x_tags(x, skip_rows):
     db, cur = get_db_instance()
 
     #query and store top x number of tags by descending priority
-    cur.execute("SELECT name FROM tags ORDER BY weight*favor DESC LIMIT ?", (x,))
+    cur.execute("SELECT name FROM tags WHERE rowid >= ? ORDER BY weight*favor DESC LIMIT ?", (skip_rows, x))
     temp = cur.fetchall()
 
     #initialize and fill list with tag names from above query
@@ -339,16 +340,12 @@ def get_best_match(previous_video, tag_list):
     cur.execute("SELECT filename FROM movies_fts WHERE watched>-1 AND filename<>? AND tags MATCH ? ORDER BY bm25(movies_fts), watched", (previous_video, joined_tags,))
     temp = cur.fetchone()
 
-    #if query got no hits, pass job to get_next_ignore_tags
-    if temp is None:
-        logger.debug("No match found. Querying for best watched value.")
-        return get_next_ignore_tags(previous_video)
-
-    #otherwise move on to return the best match from the query
-    next_video = temp[0]
-
     db.close()
+    
+    if temp is None:
+        return None
 
+    next_video = temp[0]
     logger.debug("Best match for queried tags (%s) is: %s" % (','.join(tag_list), next_video))
     return next_video
 
@@ -361,6 +358,8 @@ Parameter:  STRING representing video filename,
 Return:     STRING representing video filename
 """
 def update_prev_get_next(previous_video, attention, score):
+    global num_tags
+    
     #if no videos remain with watched value >-1, return previous to trigger 'No videos' page
     if count_unwatched()==0:
         return previous_video
@@ -371,7 +370,15 @@ def update_prev_get_next(previous_video, attention, score):
     #update favor for previous video's tags based on attention and score
     update_tags_favor(previous_video, attention, score)
 
-    #get and return list of 'num_tags' quantity of highest priority tags
-    num_tags = 3
-    tag_list = get_top_x_tags(num_tags)
-    return get_best_match(previous_video, tag_list)
+    #get and return list of 'tags_to_get' quantity of highest priority tags
+    tags_to_get = 2
+    miss_count = 0
+    
+    match = None
+    
+    while match is None:
+        tag_list = get_top_x_tags(tags_to_get, tags_to_get * miss_count)
+        match = get_best_match(previous_video, tag_list)
+        miss_count += 1
+        
+    return match
