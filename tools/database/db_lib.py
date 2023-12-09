@@ -76,7 +76,7 @@ INFO:       movies/watched:
                 0   = unwatched (default)
                 >0 = watched partially or without attention, where value equals quantity of failures to watch with attention
             tags/weight:
-                float in range [0,1] where higher reflects more 'educational value'
+                float in range [0,1] where higher reflects more 'educational relevance'
             tags/favor:
                 float in range [1,39] adjusted according to user review and attention during movie
 """
@@ -111,13 +111,6 @@ def refresh_db():
     f.close() #close file
 
     db.commit()
-
-    cur.execute("SELECT * FROM movies")
-    logger.debug(cur.fetchall())
-
-    cur.execute("SELECT * FROM tags")
-    logger.debug(cur.fetchall())
-
     db.close()
 
 """
@@ -166,16 +159,16 @@ def getval_watched(filename):
 """
 Name:       update_watched
 Purpose:    Update the watched attribute value of the movie with passed filename based on passed attention flag.
-            Attention==0 will cause watched to be incremented by 1. Attention==1 will cause watched to get -1.
+            Attention < 1.0 will cause watched to be incremented by 1. Attention == 1.0 will cause watched to get -1.
 Parameter:  STRING representing video filename, 
-            INT (0 or 1) representing failure or success to pay attention.
+            FLOAT [0,1] representing user's level of attention
 Return:     none
 """
 def update_watched(previous_video, attention):
     db, cur = get_db_instance()
 
     #if attention flag is 1, set the watched value of video with passed filename to -1
-    if attention==1:
+    if attention==1.0:
         cur.execute("UPDATE movies SET watched=-1 WHERE filename=?", (previous_video,))
     #else increment its watched value by 1
     else:
@@ -234,8 +227,8 @@ Name:       update_tags_favor
 Purpose:    Update the value of each tag held by the video with passed filename.
             Change in value is based on passed values for attention and video review score.
 Parameter:  STRING representing video filename, 
-            INTEGER (0 or 1) representing failure or success to pay attention,
-            INTEGER (1 to 5) representing user's video review score
+            FLOAT [0,1] representing failure or success to pay attention,
+            INTEGER [1,5] representing user's video review score
 Return:     none
 """
 def update_tags_favor(filename, attention, score):
@@ -244,15 +237,11 @@ def update_tags_favor(filename, attention, score):
     #query and store list of tag names attributed to video with passed filename
     cur.execute("SELECT tags FROM movies WHERE filename=?", (filename,))
     tag_list = (cur.fetchone()[0]).split()
-    
-    #prepare attention modifier value for calculating change to tag favor
-    if attention == 0:
-        attention_modifier = -1 #set modifier to -1 if attention is 0/false
-    else:
-        attention_modifier = attention #set modifier to 1 if attention is 1/true
 
     #calculate change to tag favor based on user post-review score and attention modifier
-    change_to_favor = (score - 3)/2 + 2*(attention_modifier)
+    change_to_favor = (score - 3) / 2 + (attention - 3)
+
+    logger.debug("Attention==%0.0f   Review==%d   Favor+=%0.1f" % (attention, score, change_to_favor))
 
     #if change is positive, add to favor (to a maximum of 39) for all tags in list
     if change_to_favor > 0:
@@ -321,7 +310,7 @@ def get_next_ignore_tags(previous_video):
 """
 Name:       get_best_match
 Purpose:    Get filename of the video different from prev which has as many of the passed tags as possible and watched > -1.
-            If there are multiple hits, the movie with lowest watched value is selected.
+            If there are multiple best matches by tag, the movie with lowest watched value is preferred.
 Parameter:  STRING representing video filename,
             LIST OF STRINGS representing tag names
 Return:     STRING representing video filename
@@ -349,15 +338,15 @@ def get_best_match(previous_video, tag_list):
 
     db.close()
 
-    logger.debug("Best match for queried tags (%s) is: %s" % (','.join(tag_list), next_video))
+    logger.debug("Best match for top tags (%s) is: %s" % (','.join(tag_list), next_video))
     return next_video
 
 """
 Name:       update_prev_get_next
 Purpose:    Essentially the driver function for previous video update and next video selection.
 Parameter:  STRING representing video filename, 
-            INT (0 or 1) representing user's failure or success to pay attention,
-            INTEGER (1 to 5) representing user's video review score
+            FLOAT [0,1] representing user's level of attention
+            INTEGER [1,5] representing user's video review score
 Return:     STRING representing video filename
 """
 def update_prev_get_next(previous_video, attention, score):
