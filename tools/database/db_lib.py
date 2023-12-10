@@ -95,22 +95,26 @@ def refresh_db():
     cur.execute("CREATE TABLE movies (id INTEGER PRIMARY KEY, filename TEXT NOT NULL, tags TEXT NOT NULL, watched INTEGER NOT NULL)")
     cur.execute("CREATE TABLE tags (name TEXT PRIMARY KEY, weight REAL, favor REAL)")
 
-    f = open("tools/database/movies_test.json") #open file movies.json
+    f = open("tools/database/movies.json") #open file movies.json
     dict_list = json.load(f) #create list of dict objects from json file
 
     movie_id = 0 #initialize counter to assign id primary key to movies
+    
+    #initialize attributes which have a common default for all rows
+    default_watched = 0
+    default_favor = 20
 
     #loop through list, inserting an entry into movies table for each dictionary object
     for movie in dict_list:
-        cur.execute("INSERT INTO movies VALUES (?, ?, ?, ?)", (movie_id, movie["filename"], movie["tags"], movie["watched"]))
+        cur.execute("INSERT INTO movies VALUES (?, ?, ?, ?)", (movie_id, movie["filename"], movie["tags"], default_watched))
         movie_id += 1
 
-    f = open("tools/database/tags_test.json") #open file tags.json
+    f = open("tools/database/tags.json") #open file tags.json
     dict_list = json.load(f) #create list of dict objects from json file
 
     #loop through list, inserting an entry into tags table for each dictionary object
     for tag in dict_list:
-        cur.execute("INSERT INTO tags VALUES (?, ?, ?)", (tag["name"], tag["weight"], tag["favor"]))
+        cur.execute("INSERT INTO tags VALUES (?, ?, ?)", (tag["name"], tag["weight"], default_favor))
         num_tags += 1
 
     f.close() #close file
@@ -163,17 +167,17 @@ def getval_watched(filename):
 
 """
 Name:       update_watched
-Purpose:    Update the watched attribute value of the movie with passed filename based on passed attention flag.
-            Attention < 1.0 will cause watched to be incremented by 1. Attention == 1.0 will cause watched to get -1.
+Purpose:    Update the watched attribute value of the movie with passed filename based on passed attention value.
+            Attention < 5.0 will cause watched to be incremented by 1. Attention == 5.0 will cause watched to get -1.
 Parameter:  STRING representing video filename, 
-            FLOAT [0,1] representing user's level of attention
+            FLOAT [1,5] representing user's level of attention
 Return:     none
 """
 def update_watched(previous_video, attention):
     db, cur = get_db_instance()
 
-    #if attention flag is 1, set the watched value of video with passed filename to -1
-    if attention==1.0:
+    #if attention value is 5.0, set the watched value of video with passed filename to -1
+    if attention==5.0:
         cur.execute("UPDATE movies SET watched=-1 WHERE filename=?", (previous_video,))
     #else increment its watched value by 1
     else:
@@ -238,7 +242,7 @@ Return:     none
 """
 def update_tags_favor(filename, attention, score):
     db, cur = get_db_instance()
-
+    
     #query and store list of tag names attributed to video with passed filename
     cur.execute("SELECT tags FROM movies WHERE filename=?", (filename,))
     tag_list = (cur.fetchone()[0]).split()
@@ -247,16 +251,20 @@ def update_tags_favor(filename, attention, score):
     change_to_favor = (score - 3) / 2 + (attention - 3)
 
     logger.debug("Attention==%0.0f   Review==%d   Favor+=%0.1f" % (attention, score, change_to_favor))
+    
+    #initialize limits for the favor attribute
+    max_favor = 39
+    min_favor = 1
 
     #if change is positive, add to favor (to a maximum of 39) for all tags in list
     if change_to_favor > 0:
         for t in tag_list:
-            cur.execute("UPDATE tags SET favor=MIN(favor+?,39) WHERE name=?", (change_to_favor, t))
+            cur.execute("UPDATE tags SET favor=MIN(favor+?, ?) WHERE name=?", (change_to_favor, max_favor, t))
 
     #if change is negative, subtract from favor (to a minimum of 1) for all tags in list
     elif change_to_favor < 0:
         for t in tag_list:
-            cur.execute("UPDATE tags SET favor=MAX(favor+?,1) WHERE name=?", (change_to_favor, t))
+            cur.execute("UPDATE tags SET favor=MAX(favor+?, ?) WHERE name=?", (change_to_favor, min_favor, t))
 
     #debug
     #cur.execute("SELECT name,favor FROM tags")
@@ -268,16 +276,14 @@ def update_tags_favor(filename, attention, score):
 """
 Name:       get_top_x_tags
 Purpose:    Get a list of the top x tag names by their session priority (weight*favor) (larger number is stronger priority).
-            The first 'skip_rows' results of the query are excluded, allowing for less preferred groups of tags to be queried if more preferred group gets no hits.
 Parameter:  INTEGER representing number of tags names to get
-            INTEGER representing number rows to exclude from the top of the query results
 Return:     LIST OF STRINGS representing tag names
 """
-def get_top_x_tags(x, skip_rows):
+def get_top_x_tags(x):
     db, cur = get_db_instance()
 
     #query and store top x number of tags by descending priority
-    cur.execute("SELECT name FROM tags WHERE rowid >= ? ORDER BY weight*favor DESC LIMIT ?", (skip_rows, x))
+    cur.execute("SELECT name FROM tags ORDER BY weight*favor DESC LIMIT ?", (x,))
     temp = cur.fetchall()
 
     #initialize and fill list with tag names from above query
@@ -291,24 +297,16 @@ def get_top_x_tags(x, skip_rows):
 
 """
 Name:       get_next_ignore_tags
-Purpose:    Return the filename of the video different from prev with the lowest non-negative watched value. Tie goes to "lowest" filename
-Parameter:  STRING representing video filename
+Purpose:    Return the filename of the video non-negative watched value. Tie goes to "lowest" filename
+Parameter:  none
 Return:     STRING representing video filename
 """
-def get_next_ignore_tags(previous_video):
+def get_next_ignore_tags():
     db, cur = get_db_instance()
     
     #query for video as described in function desc
-    cur.execute("SELECT filename FROM movies WHERE watched>-1 AND filename<>? ORDER BY watched ASC LIMIT 1", (previous_video,))
-    temp = cur.fetchone()
-
-    #if query got no hits, return previous
-    if temp is None:
-        db.close()
-        return previous_video
-
-    #otherwise move on to return the hit
-    next_video = temp[0]
+    cur.execute("SELECT filename FROM movies WHERE watched>-1 ORDER BY watched ASC LIMIT 1")
+    next_video = cur.fetchone()[0]
     
     db.close()
 
@@ -332,6 +330,7 @@ def get_best_match(previous_video, tag_list):
     fts_create_and_copy()
 
     #query for video as described in this function's description comment
+    logger.debug("Querying for tags: %s" % joined_tags)
     cur.execute("SELECT filename FROM movies_fts WHERE watched>-1 AND filename<>? AND tags MATCH ? ORDER BY bm25(movies_fts), watched", (previous_video, joined_tags,))
     temp = cur.fetchone()
 
@@ -341,7 +340,6 @@ def get_best_match(previous_video, tag_list):
         return None
 
     next_video = temp[0]
-    logger.debug("Best match for queried tags (%s) is: %s" % (','.join(tag_list), next_video))
     return next_video
 
 """
@@ -355,25 +353,27 @@ Return:     STRING representing video filename
 def update_prev_get_next(previous_video, attention, score):
     global num_tags
     
-    #if no videos remain with watched value >-1, return previous to trigger 'No videos' page
-    if count_unwatched()==0:
-        return previous_video
-    
     #update watched value of previou video based on attention
     update_watched(previous_video, attention)
 
     #update favor for previous video's tags based on attention and score
     update_tags_favor(previous_video, attention, score)
-
-    #get and return list of 'tags_to_get' quantity of highest priority tags
-    tags_to_get = 2
-    miss_count = 0
     
-    match = None
+    cu = count_unwatched()
+    if cu == 0:
+        return "No Video"
+    elif cu == 1:
+        return get_next_ignore_tags()
+
+    x = 2 #set number of tags to use when querying best match video
+    
+    match = None #initialize variable for video filename
     
     while match is None:
-        tag_list = get_top_x_tags(tags_to_get, tags_to_get * miss_count)
-        match = get_best_match(previous_video, tag_list)
-        miss_count += 1
+        if (x > num_tags):
+            return get_next_ignore_tags()
+        tag_list = get_top_x_tags(x)
+        match = get_best_match(previous_video, tag_list) #get filename for video which best matches those tags
+        x += 1
         
     return match

@@ -1,5 +1,5 @@
-from flask import request, g                                                                 
-from tools.logging import logger   
+from flask import request, g
+from tools.logging import logger
 from tools.headband import *
 from neurosdk.cmn_types import *
 
@@ -9,15 +9,10 @@ from open_calls.headband_wait import gl_sensor
 #Returns the next video based on the last video
 #Selection is based on the logic described by update_prev_get_next in db_lib.py
 def get_next_video(previous_video: str, attention_rating, preference_rating):
-    from tools.database.db_lib import update_prev_get_next, getval_watched
+    from tools.database.db_lib import update_prev_get_next
     
     #update value of watched for previous video based on values of attention and preference rating, and get filename for next video
     next_video = (update_prev_get_next(previous_video, attention_rating, preference_rating))
-
-    #check if the video that was just selected has already been watched
-    #planning to move this check to within update_prev_get_next
-    if getval_watched(next_video) == -1:
-        next_video = "No Video"
 
     return next_video
 
