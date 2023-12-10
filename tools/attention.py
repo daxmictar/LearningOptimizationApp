@@ -23,6 +23,8 @@ from em_st_artifacts.utils.lib_settings import MathLibSetting, ArtifactDetectSet
 
 from tools.logging import logger
 
+from tools.session import session_rating_append
+
 
 """
 Code simulation Section
@@ -38,6 +40,8 @@ def set_paid_attention(new_attention_val: float, log=False):
     logger.debug(f"New attention value: {new_attention_val}") if log else None
 
     paid_attention = new_attention_val
+
+    session_rating_append(new_attention_val)
 
     attention_valid = True
 
