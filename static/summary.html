@@ -10,30 +10,67 @@
 
 <body>
     <center>
-        <p>
-            <h1>Session Summary:</h1>
-        </p>
+        <div id="SessionSummary">
+            <h1>Session Summary</h1>
+        </div>
+
+        <div id="AverageAttention">
+            <h3>Average Attention: </h3>
+            <div id="AttentionResult"> N/A </div>
+        </div>
+
+        <div id="SessionDuration">
+            <!-- make an API call into session to find the total session duration -->
+            <h3>Session Duration: </h3> 
+            <div id="SessionResult"> N/A </div>
+        </div>
+
+        <div id="MostWatchedTag">
+            <!-- make an API call into db_lib to get most watched -->
+            <h3>Most Watched Tag: </h3>
+            <div id="TagResult"> N/A </div>
+        </div>
+
+        <br>
 
         <button id="refreshButton">Refresh Session</button>
         <button id="logOutButton">Log Out</button>
     </center>
+
 <script>
-    function get_average_attention_time() {
-        return 0.8;
+    function get_average_attention() {
+        return new Promise((resolve, reject) => {
+            $.post("/open_api/session_ratings_average", {data: "Requesting Session Ratings Average"},
+                (data, textStatus) => {
+                    console.log("Got session_average = " + data[0]);
+                    resolve(data[0]);
+                } 
+            )
+            .fail(response => {
+                console.log(response);
+                reject(response);
+            });
+        });
     }
 
-    function get_total_session_duration() {
-        // 
+    function get_session_duration() {
+        return new Promise((resolve, reject) => {
+            $.post("/open_api/session_duration", { "data" : "Requesting Session Time"},
+                (data, textStatus) => {
+                    console.log("Got session_duration = " + data[0]);
+                    resolve(data[0]);
+                }
+            )
+            .fail(response => {
+                console.log(response);
+                reject(response);
+            });
+        });
     }
 
-    function show_most_watched_tag() {
+    function get_most_watched_tag() {
         // stub for a tag of "Dog" videos
-        return "Dog"
-    }
-
-    function show_total_session_duration() {
-        // stub for 2 minute session
-        return 2;
+        return "Math"
     }
 
     function startSession() {
@@ -85,6 +122,24 @@
     document
         .getElementById('logOutButton')
         .addEventListener('click', logOut);
+
+    const attention_result = document.getElementById("AttentionResult")
+    get_average_attention()
+        .then((result) => {
+            attention_result.innerHTML = result;
+        })
+        .catch((error) => console.log(error));
+
+    const session_result = document.getElementById("SessionResult");
+    get_session_duration()
+        .then((result) => {
+            session_result.innerHTML = result + " seconds";
+        })
+        .catch((error) => console.log(error));
+
+    const tag_result = document.getElementById("TagResult");
+    tag_result.innerHTML = get_most_watched_tag();
+
 </script>
 
 </body>
