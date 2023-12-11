@@ -89,7 +89,7 @@
         <br>
 
         <button class = "refreshButton" id="refreshButton">Refresh Session</button>
-        <button class = "logOutButton" logOutButton">Log Out</button>
+        <button class = "logOutButton" id="logOutButton">Log Out</button>
     </center>
 
 <script>
@@ -181,14 +181,6 @@
             });
     }
 
-    document
-        .getElementById('refreshButton')
-        .addEventListener('click', refreshSession);
-
-    document
-        .getElementById('logOutButton')
-        .addEventListener('click', logOut);
-
     const attention_result = document.getElementById("AttentionResult")
     get_average_attention()
         .then((result) => {
@@ -209,6 +201,15 @@
             tag_result.innerHTML = result;
         })
         .catch((error) => console.log(error));
+
+    document
+        .getElementById('refreshButton')
+        .addEventListener('click', refreshSession);
+
+    document
+        .getElementById('logOutButton')
+        .addEventListener('click', logOut);
+
 
 
 </script>
