@@ -78,174 +78,206 @@
         </head>
     <body>
 
-	<script>
-		function play_start(current_video){
-			$.post("/open_api/play_movie", { "data" : current_video},
-				function(data, textStatus) {
-					//this gets called when browser receives response from server
-					console.log(data);
-				}, "json").fail( function(response) {
-					//this gets called if the server throws an error
-					console.log("error");
-				console.log(response);});
-		}
-
-		/*
-		 * @description On video end make a call to the server
-		 * @param previous_video The src of the previously played video that just ended
-		 */
-		function play_end(previous_video){
-			$.post("/open_api/end_movie", {"data" : previous_video},
-				function(data, textStatus) {
-					//Gets called when browser recieves response from server
-					console.log("DATA: ");
-					console.log(data);
-
-					//Grab the video and the video source
-					video = document.getElementById("video")
-					video_source = document.getElementById("video_source")
-
-					//Set the source to the new video recieved from server
-					video_source.setAttribute("src", data);
-
-					//Load the video
-					video.load();
-
-					//Redirect to post video survey
-					window.location.href = 'post_video_survey.html?last_video=' + data[0];
-				}, "json").fail(function(response){
-					console.log("Error");
-					console.log(response);
-				});
-		}
-
-		function loadDebugMode() {
-            // check for ?debug_mode=true
-            const urlParams = new URLSearchParams(window.location.search);
-            const isInDebugMode = urlParams.has("debug_mode") && (urlParams.get("debug_mode") === "true");
-            console.log("Is index.html in debug_mode? == " + isInDebugMode);
-
-            const userAgent = navigator.userAgent;
-			const validBrowser = userAgent.includes("Chrome") || userAgent.includes("Edge");
-			console.log("Is browser valid? == " + validBrowser);
-
-            // so far, this feature ONLY works in Chrome or Edge
-            if (validBrowser && isInDebugMode) {
-				console.log("Select directory button is active");
-
-             	const listDirButton = document.getElementById("listDirectoryButton");
-             	const movieDropDown = document.getElementById("Movies");
-
-             	listDirButton.addEventListener("click", async () => {
-                	try {
-                        // this is the function that is browser specific (also noted as experimental)
-                        const dirHandle = await window.showDirectoryPicker(); // directory
-                        const entries = dirHandle.values();
-
-                		// asynchronously read all of the files and add them to the list.
-                 		for await (const entry of entries) {
-							if (entry.name.includes(".mp4")) {
+		<script>
+			function play_start(current_video){
+				$.post("/open_api/play_movie", { "data" : current_video},
+					function(data, textStatus) {
+						//this gets called when browser receives response from server
+						console.log(data);
+					}, "json").fail( function(response) {
+						//this gets called if the server throws an error
+						console.log("error");
+					console.log(response);});
+			}
+	
+			function attention_start() {
+				// make a POST to start_attention to start data collection for attention
+				// related services
+				$.post("/open_api/start_attention", { "data" : "Starting Attention Collection" }, 
+					(data, textStatus) => {
+						console.log(data)
+					}, 
+					"json")
+					.fail ((response) => console.log("start_attention call failed"));
+			}
+	
+			/*
+			 * @description On video end make a call to the server
+			 * @param previous_video The src of the previously played video that just ended  
+			 */
+			function play_end(previous_video){
+				$.post("/open_api/end_movie", {"data" : previous_video},
+					function(data, textStatus) {
+						//Gets called when browser recieves response from server
+						console.log("DATA: ");
+						console.log(data);
+						
+						//Grab the video and the video source
+						video = document.getElementById("video")
+						video_source = document.getElementById("video_source")
+						
+						//Set the source to the new video recieved from server
+						video_source.setAttribute("src", data);
+	
+						//Load the video
+						video.load();
+	
+						//Redirect to post video survey
+						window.location.href = 'post_video_survey.html?last_video=' + data[0];
+					}, "json").fail(function(response){
+						console.log("Error");
+						console.log(response);
+					});
+			}
+	
+			function attention_stop() {
+				// make a POST to start_attention to start data collection for attention
+				// related services
+				$.post("/open_api/end_attention", { "data" : "Ending Attention Collection" }, 
+					(data, textStatus) => {
+						console.log(data)
+					}, 
+					"json")
+					.fail ((response) => console.log("end_attention call failed"));
+			}
+	
+			function attention_clear() {
+				// make a POST to clear_attention_data to clear data collection for attention
+				// related services
+				$.post("/open_api/clear_attention_data", { "data" : "Filling Attention Collection" }, 
+					(data, textStatus) => {
+						console.log(data)
+					}, 
+					"json")
+					.fail ((response) => console.log("end_attention call failed"));
+			}
+	
+			function loadDebugMode() {
+				// check for ?debug_mode=true	
+				const urlParams = new URLSearchParams(window.location.search);
+				const isInDebugMode = urlParams.has("debug_mode") && (urlParams.get("debug_mode") === "true");
+				console.log("Is index.html in debug_mode? == " + isInDebugMode);
+	
+				const userAgent = navigator.userAgent;
+				const validBrowser = userAgent.includes("Chrome") || userAgent.includes("Edge") || userAgent.includes("Firefox");
+				console.log("Is browser valid? == " + validBrowser);
+	
+				const generateVideoList = () => {
+					return new Promise((resolve, reject) => {
+						$.post("/open_api/get_mp4s", { "data": "Requesting MP4s from static dir" },
+							(data, textStatus) => {
+								console.log("Got MP4s: " + data);
+								resolve(data);
+							} 
+						)
+						.fail(response => {
+							console.log(response);
+							reject(response);
+						});
+					});
+				};
+	
+				if (validBrowser && isInDebugMode) {
+					 const movieDropDown = document.getElementById("Movies");
+					generateVideoList()
+						.then((videos) => {
+							// const listDirButton = document.getElementById("listDirectoryButton");
+							const movieDropDown = document.getElementById("Movies");
+							for (const mp4 of videos) {
 								const listItem = document.createElement("option");
-								listItem.value = entry.name;
-								listItem.textContent = entry.name;
+								listItem.value = mp4;
+								listItem.textContent = mp4;
 								movieDropDown.appendChild(listItem);
 							}
-                 		}
-         			} catch (error) {
-             			console.log(error);
-            		}
-    			});
-			} else { // hides on non-debug_mode
-				document
-					.getElementById("listDirectoryButton")
-					.style = "visibility:hidden";
-
-				document
-					.getElementById("Movies")
-					.style = "visibility:hidden";
-
-				document
-					.getElementById("selectMovieButton")
-					.style = "visibility:hidden";
+						});
+				} else {
+					document
+						.getElementById("Movies")
+						.style = "visibility:hidden";
+	
+					document
+						.getElementById("selectMovieButton")
+						.style = "visibility:hidden";
+				}
 			}
-		}
-
-		function getSelectedText(elementId) {
-			// jquery function to get the text of a selected element
-			var selected_text = $("#" + elementId + " option:selected").text();
-
-			if (!selected_text) {
-				return null;
-			}
-
-			return selected_text;
-		}
-	</script>
-
-	<center>
-		<video class = "video" video id="video" width="640" height="480" controls>
-			<source id="video_source" src="movie.mp4" type="video/mp4">
-				Your browser does not support the video tag.
-		</video>
-
-		<center>
-			<button class="listDirectoryButton" id="listDirectoryButton">Select Directory</button>
-		</center>
-
-		<select class="Movies" name="Movies" id="Movies">Movies</select>
-		<button class="selectMovieButton" id="selectMovieButton">Select Movie</button>
-	</center>
-
-	<script>
-		//Listens for a video start and issues a call that sends previous video to server via play_end function.
-		video.addEventListener("play", (event) => {
-			//Send the current videos name to server
-			var current_video = document.getElementById("video_source").getAttribute("src")
-			play_start(current_video);
-		});
-		
-		//Listens for a video end and issues a call that sends previous video to server via play_end function.
-		//Also stops headband feed if it is open
-		video.addEventListener("ended", (event) => {
-			//Set the previous videos name to the server
-			var prev_video = document.getElementById("video_source").getAttribute("src")
-			console.log("Source in Listener: ");
-			console.log(prev_video);
-			play_end(prev_video);
-		});
-
-		document.getElementById("selectMovieButton").addEventListener("click", () => {
-            var video = document.getElementById("video")
-			var video_src = document.getElementById("video_source")
-
-			// use helper function to get the currently selected text from drop down
-			video_src.setAttribute("src", getSelectedText("Movies"));
-
-            //Load the video
-            video.load();
-		});
-
-		window.onload = function(){
-			console.log("Grabbing location: " + window.location);
-			const urlParams = new URLSearchParams(window.location.search);
-            const variable = urlParams.get('next_video');
-            console.log("Grabbing variable: " + variable);
-
-			loadDebugMode();
-
-			if(variable != null){
-				//Grab the video and the video source
-				video = document.getElementById("video");
-				video_source = document.getElementById("video_source");
+	
+			function getSelectedText(elementId) {
+				// jquery function to get the text of a selected element
+				var selected_text = $("#" + elementId + " option:selected").text();
 				
-				//Set the source to the new video recieved from server
-				video_source.setAttribute("src", variable);
-
+				if (!selected_text) {
+					return null;
+				}
+	
+				return selected_text;
+			}
+		</script>
+	
+		<center>
+			<video id="video" width="640" height="480" controls>
+				<source id="video_source" src="Algebra_1_Help_MathHelp.mp4" type="video/mp4">
+					Your browser does not support the video tag.
+			</video>
+	
+			<center>
+				<select name="Movies" id="Movies", style="width: 150px">Movies</select>
+				<button id="selectMovieButton">Select Movie</button>
+			</center>
+		</center>
+	
+		<script>
+			//Listens for a video start and issues a call that sends previous video to server via play_end function.
+			video.addEventListener("play", (event) => {
+				//Send the current videos name to server
+				var current_video = document.getElementById("video_source").getAttribute("src")
+				play_start(current_video);
+				attention_start();
+			});
+			
+			//Listens for a video end and issues a call that sends previous video to server via play_end function.
+			//Also stops headband feed if it is open
+			video.addEventListener("ended", (event) => {
+				//Set the previous videos name to the server
+				var prev_video = document.getElementById("video_source").getAttribute("src")
+				console.log("Source in Listener: ");
+				console.log(prev_video);
+				play_end(prev_video);
+				attention_stop();
+			});
+	
+			document.getElementById("selectMovieButton").addEventListener("click", () => {
+				var video = document.getElementById("video")
+				var video_src = document.getElementById("video_source")
+	
+				// use helper function to get the currently selected text from drop down
+				video_src.setAttribute("src", getSelectedText("Movies"));
+	
 				//Load the video
 				video.load();
+			});
+	
+			window.onload = function(){
+				console.log("Grabbing location: " + window.location);
+				const urlParams = new URLSearchParams(window.location.search);
+				const variable = urlParams.get('next_video');
+				console.log("Grabbing variable: " + variable);
+	
+				loadDebugMode();
+	
+				if(variable != null){
+					//Grab the video and the video source
+					video = document.getElementById("video");
+					video_source = document.getElementById("video_source");
+					
+					//Set the source to the new video recieved from server
+					video_source.setAttribute("src", variable);
+	
+					//Load the video
+					video.load();
+				}
 			}
-		}
-	</script>
+		</script>
+		</body>
 
     </body>
 </html>
