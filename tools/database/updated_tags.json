@@ -4,6 +4,10 @@
 		"weight":1
 	},
 	{
+		"name":"Calculus",
+		"weight":1
+	},
+	{
 		"name":"Geometry",
 		"weight":1
 	},
@@ -16,35 +20,35 @@
 		"weight":1
 	},
 	{
-		"name":"len=long",
+		"name":"len_long",
 		"weight":0.5
 	},
 	{
-		"name":"len=medium",
+		"name":"len_medium",
 		"weight":0.5
 	},
 	{
-		"name":"len=short",
+		"name":"len_short",
 		"weight":0.5
 	},
 	{
-		"name":"pace=fast",
+		"name":"pace_fast",
 		"weight":0.5
 	},
 	{
-		"name":"pace=medium",
+		"name":"pace_medium",
 		"weight":0.5
 	},
 	{
-		"name":"pace=slow",
-		"weight":0.5
-	}
-	{
-		"name":"delv=human_narrator",
+		"name":"pace_slow",
 		"weight":0.5
 	},
 	{
-		"name":"delv=human_presentor",
+		"name":"delv_human_narrator",
+		"weight":0.5
+	},
+	{
+		"name":"delv_human_presentor",
 		"weight":0.5
 	},
 	{
@@ -62,7 +66,7 @@
 	{
 		"name":"inferential",
 		"weight":0.5
-	}
+	},
 	{
 		"name":"sin_cos_tan",
 		"weight":0.5
@@ -74,7 +78,7 @@
 	{
 		"name":"polynomial",
 		"weight":0.5
-	}
+	},
 	{
 		"name":"standard_deviation",
 		"weight":0.5
