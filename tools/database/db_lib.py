@@ -95,7 +95,7 @@ def refresh_db():
     cur.execute("CREATE TABLE movies (id INTEGER PRIMARY KEY, filename TEXT NOT NULL, tags TEXT NOT NULL, watched INTEGER NOT NULL)")
     cur.execute("CREATE TABLE tags (name TEXT PRIMARY KEY, weight REAL, favor REAL)")
 
-    f = open("tools/database/movies.json") #open file movies.json
+    f = open("tools/database/updated_movies.json") #open file movies.json
     dict_list = json.load(f) #create list of dict objects from json file
 
     movie_id = 0 #initialize counter to assign id primary key to movies
@@ -109,7 +109,7 @@ def refresh_db():
         cur.execute("INSERT INTO movies VALUES (?, ?, ?, ?)", (movie_id, movie["filename"], movie["tags"], default_watched))
         movie_id += 1
 
-    f = open("tools/database/tags.json") #open file tags.json
+    f = open("tools/database/updated_tags.json") #open file tags.json
     dict_list = json.load(f) #create list of dict objects from json file
 
     #loop through list, inserting an entry into tags table for each dictionary object
