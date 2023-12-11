@@ -87,11 +87,26 @@
             console.log("Is index.html in debug_mode? == " + isInDebugMode);
 
             const userAgent = navigator.userAgent;
-			const validBrowser = userAgent.includes("Chrome") || userAgent.includes("Edge");
-			console.log("Is browser valid? == " + validBrowser);
+			const chromeOrEdge = userAgent.includes("Chrome") || userAgent.includes("Edge");
+			console.log("Is browser valid? == " + chromeOrEdge);
+
+			const fireFox = () => {
+				return new Promise((resolve, reject) => {
+					$.post("/open_api/get_mp4s", { "data": "Requesting MP4s from static dir" },
+						(data, textStatus) => {
+							console.log("Got MP4s: " + data);
+							resolve(data);
+						} 
+					)
+					.fail(response => {
+						console.log(response);
+						reject(response);
+					});
+				});
+			};
 
             // so far, this feature ONLY works in Chrome or Edge                                   		    
-            if (validBrowser && isInDebugMode) {
+            if (chromeOrEdge && isInDebugMode) {
 				console.log("Select directory button is active");
 
              	const listDirButton = document.getElementById("listDirectoryButton");
@@ -116,18 +131,29 @@
              			console.log(error);
             		}
     			});
-			} else { // hides on non-debug_mode
-				document
-					.getElementById("listDirectoryButton")
-					.style = "visibility:hidden";
+			} else { // uses the fireFox method of retrieving MP4s from static...
+				fireFox()
+					.then((files) => {
+						// const listDirButton = document.getElementById("listDirectoryButton");
+						const movieDropDown = document.getElementById("Movies");
+						for (const mp4 of files) {
+							const listItem = document.createElement("option");
+							listItem.value = mp4;
+							listItem.textContent = mp4;
+							movieDropDown.appendChild(listItem);
+						}
+					});
+				//document
+				//	.getElementById("listDirectoryButton")
+				//	.style = "visibility:hidden";
 				
-				document
-					.getElementById("Movies")
-					.style = "visibility:hidden";
+				//document
+				//	.getElementById("Movies")
+				//	.style = "visibility:hidden";
 
-				document
-					.getElementById("selectMovieButton")
-					.style = "visibility:hidden";
+				//document
+				//	.getElementById("selectMovieButton")
+				//	.style = "visibility:hidden";
 			}
 		}
 
@@ -153,7 +179,7 @@
 			<button id="listDirectoryButton">Select Directory</button>
 		</center>
 
-		<select name="Movies" id="Movies">Movies</select>
+		<select name="Movies" id="Movies", style="width: 150px">Movies</select>
 		<button id="selectMovieButton">Select Movie</button>
 	</center>
 
