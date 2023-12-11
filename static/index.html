@@ -118,7 +118,15 @@
 							movieDropDown.appendChild(listItem);
 						}
 					});
-    		};
+    		} else {
+				document
+					.getElementById("Movies")
+					.style = "visibility:hidden";
+
+				document
+					.getElementById("selectMovieButton")
+					.style = "visibility:hidden";
+			}
 		}
 
 		function getSelectedText(elementId) {
