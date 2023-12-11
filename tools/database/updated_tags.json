@@ -82,5 +82,17 @@
 	{
 		"name":"unit_circle",
 		"weight":0.5
+	},
+	{
+		"name":"functions",
+		"weight":0.5
+	},
+	{
+		"name":"circles",
+		"weight":0.5
+	},
+	{
+		"name":"challenge",
+		"weight":0.5
 	}
 ]
