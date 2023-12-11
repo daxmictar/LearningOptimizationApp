@@ -65,14 +65,80 @@
 <body>
   <main id = "main-holder">
     <center>
-        <p>
-            <h1>Session Summary:</h1>
-        </p>
+        <div id="SessionSummary">
+            <h1>Session Summary</h1>
+        </div>
+
+        <div id="SessionDuration">
+            <!-- make an API call into session to find the total session duration -->
+            <h3>Session Duration: </h3> 
+            <div id="SessionResult"> N/A </div>
+        </div>
+
+        <div id="AverageAttention">
+            <h3>Average attention for the session: </h3>
+            <div id="AttentionResult"> N/A </div>
+        </div>
+
+        <div id="MostWatchedTag">
+            <!-- make an API call into db_lib to get most watched -->
+            <h3>Top 5 Tags: </h3>
+            <div id="TagResult"> N/A </div>
+        </div>
+
+        <br>
 
         <button class = "refreshButton" id="refreshButton">Refresh Session</button>
         <button class = "logOutButton" logOutButton">Log Out</button>
     </center>
+
 <script>
+    function get_average_attention() {
+        return new Promise((resolve, reject) => {
+            $.post("/open_api/session_ratings_average", { "data": "Requesting Session Ratings Average" },
+                (data, textStatus) => {
+                    console.log("Got session_average = " + data[0]);
+                    resolve(data[0]);
+                } 
+            )
+            .fail(response => {
+                console.log(response);
+                reject(response);
+            });
+        });
+    }
+
+    function get_session_duration() {
+        return new Promise((resolve, reject) => {
+            $.post("/open_api/session_duration", { "data" : "Requesting Session Time" },
+                (data, textStatus) => {
+                    console.log("Got session_duration = " + data[0]);
+                    resolve(data[0]);
+                }
+            )
+            .fail(response => {
+                console.log(response);
+                reject(response);
+            });
+        });
+    }
+
+    function get_most_watched_tag() {
+        return new Promise((resolve, reject) => {
+            $.post("/open_api/most_watched_tags", { "data" : "Requesitng most watched tags" },
+                (data, textStatus) => {
+                    console.log(typeof(data));
+                    console.log(data);
+                    resolve(data);
+                }  
+            )
+            .fail(response => {
+                console.log(response);
+                reject(response);
+            });
+        });
+    }
+
     function startSession() {
         $.post("/open_api/start_session", "Starting Session",
             (data, textStatus) => {
@@ -122,6 +188,29 @@
     document
         .getElementById('logOutButton')
         .addEventListener('click', logOut);
+
+    const attention_result = document.getElementById("AttentionResult")
+    get_average_attention()
+        .then((result) => {
+            attention_result.innerHTML = result;
+        })
+        .catch((error) => console.log(error));
+
+    const session_result = document.getElementById("SessionResult");
+    get_session_duration()
+        .then((result) => {
+            session_result.innerHTML = result;
+        })
+        .catch((error) => console.log(error));
+
+    const tag_result = document.getElementById("TagResult");
+    get_most_watched_tag()
+        .then((result) => {
+            tag_result.innerHTML = result;
+        })
+        .catch((error) => console.log(error));
+
+
 </script>
 </main>
 </body>

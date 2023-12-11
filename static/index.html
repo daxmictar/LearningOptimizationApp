@@ -90,6 +90,17 @@
 				console.log(response);});
 		}
 
+		function attention_start() {
+			// make a POST to start_attention to start data collection for attention
+			// related services
+			$.post("/open_api/start_attention", { "data" : "Starting Attention Collection" }, 
+				(data, textStatus) => {
+					console.log(data)
+				}, 
+				"json")
+				.fail ((response) => console.log("start_attention call failed"));
+		}
+
 		/*
 		 * @description On video end make a call to the server
 		 * @param previous_video The src of the previously played video that just ended
@@ -119,6 +130,28 @@
 				});
 		}
 
+		function attention_stop() {
+			// make a POST to start_attention to start data collection for attention
+			// related services
+			$.post("/open_api/end_attention", { "data" : "Ending Attention Collection" }, 
+				(data, textStatus) => {
+					console.log(data)
+				}, 
+				"json")
+				.fail ((response) => console.log("end_attention call failed"));
+		}
+
+		function attention_clear() {
+			// make a POST to clear_attention_data to clear data collection for attention
+			// related services
+			$.post("/open_api/clear_attention_data", { "data" : "Filling Attention Collection" }, 
+				(data, textStatus) => {
+					console.log(data)
+				}, 
+				"json")
+				.fail ((response) => console.log("end_attention call failed"));
+		}
+
 		function loadDebugMode() {
             // check for ?debug_mode=true
             const urlParams = new URLSearchParams(window.location.search);
@@ -126,14 +159,11 @@
             console.log("Is index.html in debug_mode? == " + isInDebugMode);
 
             const userAgent = navigator.userAgent;
-			const validBrowser = userAgent.includes("Chrome") || userAgent.includes("Edge");
+			const validBrowser = userAgent.includes("Chrome") || userAgent.includes("Edge") || userAgent.includes("Firefox");
 			console.log("Is browser valid? == " + validBrowser);
 
             // so far, this feature ONLY works in Chrome or Edge
             if (validBrowser && isInDebugMode) {
-				console.log("Select directory button is active");
-
-             	const listDirButton = document.getElementById("listDirectoryButton");
              	const movieDropDown = document.getElementById("Movies");
 
              	listDirButton.addEventListener("click", async () => {
@@ -202,6 +232,7 @@
 			//Send the current videos name to server
 			var current_video = document.getElementById("video_source").getAttribute("src")
 			play_start(current_video);
+			attention_start();
 		});
 		
 		//Listens for a video end and issues a call that sends previous video to server via play_end function.
@@ -212,6 +243,7 @@
 			console.log("Source in Listener: ");
 			console.log(prev_video);
 			play_end(prev_video);
+			attention_stop();
 		});
 
 		document.getElementById("selectMovieButton").addEventListener("click", () => {
