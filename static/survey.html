@@ -8,9 +8,46 @@
     <link href="https://unpkg.com/survey-jquery/defaultV2.min.css" type="text/css" rel="stylesheet">
 
     <script type="text/javascript" src="https://unpkg.com/survey-jquery/survey.jquery.min.js"></script>
-</head>
+    <style>
+      html {
+       height: 100%;
+     }
+
+     body {
+       height: 100%;
+       margin: 0;
+       font-family: Arial, Helvetica, sans-serif;
+       display: grid;
+       justify-items: center;
+       align-items: center;
+       background-color: #3a3a3a;
+     }
+
+     #main-holder {
+       width: 50%;
+       height: 90%;
+       display: grid;
+       justify-items: center;
+       align-items: center;
+       background-color: white;
+       border-radius: 7px;
+       box-shadow: 0px 0px 5px 2px black;
+     }
+     .survey{
+      margin-top: 3%;
+       width: 75%;
+       font-size: large;
+       padding: 7px;
+       border: none;
+       border-radius: 5px;
+     }
+
+     </style>
+  </head>
 <body>
-    <div id="surveyContainer"></div>
+  <main id = "main-holder">
+    <div class = "survey" id="surveyContainer"></div>
+    <center>
     <script>
         const surveyJson = {
             elements: [{
@@ -53,7 +90,7 @@
                 var name = element_list[i].name;
                 data_object[name] = sender.data[name];
             }
-            
+
             //Send over the form data
             $.post("/open_api/submit_survey", data_object,
                 function(data, textStatus) {
@@ -76,5 +113,7 @@
             $("#surveyContainer").Survey({ model: survey });
         });
     </script>
+    </center>
+    </main>
 </body>
 </html>

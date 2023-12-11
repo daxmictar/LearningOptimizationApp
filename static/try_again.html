@@ -7,9 +7,62 @@
     <link rel="stylesheet" type="text/css" href="try_again.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.js" 
 		     integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-</head>
-<body>
+         <style>
+          html {
+            height: 100%;
+          }
 
+          body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            display: grid;
+            justify-items: center;
+            align-items: center;
+            background-color: #3a3a3a;
+          }
+
+          #main-holder {
+            width: 50%;
+            height: 70%;
+            display: grid;
+            justify-items: center;
+            align-items: center;
+            background-color: white;
+            border-radius: 7px;
+            box-shadow: 0px 0px 5px 2px black;
+          }
+          .retryButton{
+            width: 75%;
+            font-size: large;
+            padding: 7px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            background-color: #3a3a3a;
+            cursor: pointer;
+            outline: none;
+            margin-bottom: 10%;
+          }
+          .checkAgainButton{
+            width: 75%;
+            font-size: large;
+            padding: 7px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            background-color: #3a3a3a;
+            cursor: pointer;
+            outline: none;
+            margin-bottom: 10%;
+          }
+
+          </style>
+        </head>
+<body>
+<main id = "main-holder">
     <center>
         <p>
             <h1>There is no headband connection!</h1>
@@ -21,11 +74,11 @@
                     <li>The headband was moved out of range of the bluetooth scanner.</li>
                 </ol>
         </p>
-    
 
-        <button id="retryButton">Attempt to connect to Headband again</button>
-        <button id="checkAgainButton">Check if the headband connected anyway</button>
-    </center> 
+
+        <button class = "retryButton" id="retryButton">Attempt to connect to Headband again</button>
+        <button class = "checkAgainButton" id ="checkAgainButton">Check if the headband connected anyway</button>
+    </center>
 <script>
 
     function retryHeadbandConnectionProcess() {
@@ -63,6 +116,6 @@
         .addEventListener('click', checkAgain);
 
 </script>
-
+</main>
 </body>
 </html>

@@ -6,11 +6,65 @@
     <title>Headband Initialize</title>
     <script src="https://code.jquery.com/jquery-3.6.0.js" 
 		     integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-</head>
+         <style>
+          html {
+            height: 100%;
+          }
+
+          body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            display: grid;
+            justify-items: center;
+            align-items: center;
+            background-color: #3a3a3a;
+          }
+
+          #main-holder {
+            width: 50%;
+            height: 70%;
+            display: grid;
+            justify-items: center;
+            align-items: center;
+            background-color: white;
+            border-radius: 7px;
+            box-shadow: 0px 0px 5px 2px black;
+          }
+          .postbutton{
+            width: 75%;
+            font-size: large;
+            padding: 7px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            background-color: #3a3a3a;
+            cursor: pointer;
+            outline: none;
+            margin-bottom: 50%;
+          }
+          .debugMode{
+            width: 75%;
+            font-size: large;
+            padding: 7px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            background-color: #3a3a3a;
+            cursor: pointer;
+            outline: none;
+            margin-bottom: 50%;
+          }
+
+          </style>
+        </head>
 <body>
+  <main id="main-holder">
 <center>
-    <button id="postButton">Scan for available headbands</button>
-    <button id="debugMode">DEBUG</button>
+    <button class = "postbutton" button id="postButton">Scan for available headbands</button>
+    <button class = "debugMode" button id="debugMode">DEBUG</button>
 </center>
 <script>
 
@@ -34,12 +88,12 @@
     document
         .getElementById('postButton')
         .addEventListener('click', beginScanForHeadband);
-    
+
     document
         .getElementById("debugMode")
         .addEventListener("click", () => window.location.href = "index.html?debug_mode=true")
 
 </script>
-
+</main>
 </body>
 </html>
