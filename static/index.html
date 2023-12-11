@@ -33,29 +33,56 @@
 		 * @description On video end make a call to the server
 		 * @param previous_video The src of the previously played video that just ended  
 		 */
-		function play_end(previous_video){
-			$.post("/open_api/end_movie", {"data" : previous_video},
-				function(data, textStatus) {
-					//Gets called when browser recieves response from server
-					console.log("DATA: ");
-					console.log(data);
-					
-					//Grab the video and the video source
-					video = document.getElementById("video")
-					video_source = document.getElementById("video_source")
-					
-					//Set the source to the new video recieved from server
-					video_source.setAttribute("src", data);
+		function play_end(previous_video, handsoff){
+			if(handsoff == "On"){
+				$.post("/open_api/next_video", {"data" : previous_video, "handsoff" : handsoff, "AttentionRating" : 1, "PreferenceRating" : 1},
+					function(data, textStatus) {
+						//Gets called when browser recieves response from server
+						console.log("DATA: ");
+						console.log(data);
+						
+						//Grab the video and the video source
+						video = document.getElementById("video")
+						video_source = document.getElementById("video_source")
+						
+						//Set the source to the new video recieved from server
+						video_source.setAttribute("src", data);
 
-					//Load the video
-					video.load();
+						//Load the video
+						video.load();
 
-					//Redirect to post video survey
-					window.location.href = 'post_video_survey.html?last_video=' + data[0];
-				}, "json").fail(function(response){
-					console.log("Error");
-					console.log(response);
-				});
+						if(data[1] == "On"){
+							//Redirect to post video survey
+							window.location.href = 'index.html?last_video=' + data[0] + '&handsoff=' + data[1];
+						}
+					}, "json").fail(function(response){
+						console.log("Error");
+						console.log(response);
+					});
+			} else {
+				$.post("/open_api/end_movie", {"data" : previous_video},
+					function(data, textStatus) {
+						//Gets called when browser recieves response from server
+						console.log("DATA: ");
+						console.log(data);
+						
+						//Grab the video and the video source
+						video = document.getElementById("video")
+						video_source = document.getElementById("video_source")
+						
+						//Set the source to the new video recieved from server
+						video_source.setAttribute("src", data);
+
+						//Load the video
+						video.load();
+
+						//Redirect to post video survey
+						window.location.href = 'post_video_survey.html?last_video=' + data[0];
+					}, "json").fail(function(response){
+						console.log("Error");
+						console.log(response);
+					});
+			}
 		}
 
 		function attention_stop() {
@@ -153,6 +180,10 @@
 			<button id="listDirectoryButton">Select Directory</button>
 		</center>
 
+		<center>
+			<button id="HandsOffMode">Handsoff Mode: Off</button>
+		</center>
+
 		<select name="Movies" id="Movies">Movies</select>
 		<button id="selectMovieButton">Select Movie</button>
 	</center>
@@ -164,6 +195,13 @@
 			var current_video = document.getElementById("video_source").getAttribute("src")
 			play_start(current_video);
 			attention_start();
+
+			//Hide the video controls when the video is first played
+			document.getElementById("video").controls = false;
+
+			//Hide the option to toggle the offhands mode while a video is playing
+			//This is done to reduce distractions during video consumption
+			document.getElementById("HandsOffMode").style.display = 'none';
 		});
 		
 		//Listens for a video end and issues a call that sends previous video to server via play_end function.
@@ -173,8 +211,36 @@
 			var prev_video = document.getElementById("video_source").getAttribute("src")
 			console.log("Source in Listener: ");
 			console.log(prev_video);
-			play_end(prev_video);
+
+			//Get the url param for handsoff
+			const urlParams = new URLSearchParams(window.location.search);
+            const handsoff = urlParams.get('handsoff');
+
+			//Pass in the previous video and state of handsoff mode to the post function
+			play_end(prev_video, handsoff);
 			attention_stop();
+		});
+
+		document.getElementById("HandsOffMode").addEventListener("click", () => {
+			const urlParams = new URLSearchParams(window.location.search);
+            var handsoff = urlParams.get('handsoff');
+
+			//If hands off is found and is on
+			if(handsoff == "On"){
+				//Turn it off and refresh the page
+				handsoff = "Off"
+			} else {
+				//If it is off then we turn it on and reload the page
+				handsoff = "On"
+				//Set the param
+			}
+
+			const debug = urlParams.get('debug_mode');
+
+			console.log("Handsoff Mode: " + handsoff + "\nDebug Mode: " + debug);
+
+			window.location.href = 'index.html?debug=' + debug + '&handsoff=' + handsoff;
+			
 		});
 
 		document.getElementById("selectMovieButton").addEventListener("click", () => {
@@ -195,7 +261,8 @@
             console.log("Grabbing variable: " + variable);
 
 			loadDebugMode();
-
+			
+			//Check for debug variable being passed in for debug mode
 			if(variable != null){
 				//Grab the video and the video source
 				video = document.getElementById("video");
@@ -206,6 +273,40 @@
 
 				//Load the video
 				video.load();
+			}
+
+			var last_video = urlParams.get("last_video")
+			console.log("Last Video: " + last_video)
+			if(last_video != null){
+				//Grab the video and the video source
+				video = document.getElementById("video");
+				video_source = document.getElementById("video_source");
+				
+				//Set the source to the new video recieved from server
+				video_source.setAttribute("src", last_video);
+
+				//Load the video
+				video.load();
+				video.play();
+			}
+
+			//Check for handsfree mode being passed in for handsfree mode
+			var handsoff = urlParams.get('handsoff');
+			console.log("Handsoff Mode = " + handsoff);
+
+			if(handsoff != null){
+				if(handsoff == 'On'){
+					//Turn off video controls if in hands free mode
+					document.getElementById("video").controls = false;
+
+					//Set the text on the button to the correct value
+					document.getElementById("HandsOffMode").innerHTML = "Handsoff Mode: On"
+
+					//Set the button to invisible
+					document.getElementById("HandsOffMode").display = 'none';
+
+					document.getElementById("video").play();
+				}
 			}
 		}
 	</script>

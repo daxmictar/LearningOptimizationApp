@@ -29,10 +29,17 @@ def handle_request(previous_video, survey_info):
     #Log out previous and next video
     logger.debug("Previous Video: " + previous_video + "    Next Video: " + next_video)
 
+    if 'handsoff' in survey_info:
+        print("Handsoff = True")
+        handsoff = survey_info['handsoff']
+    else:
+        print("Handsoff = False")
+        handsoff = "Off"
+
     #If there is no headband we stop here
     if gl_sensor == None:
         #Send just the video name to the browser (May want to send more information later but for now working with this)
-        return [next_video]
+        return [next_video, handsoff]
 
     #If there is a headband stop recieving data because no video is playing yet
     gl_sensor.exec_command(SensorCommand.CommandStopSignal)

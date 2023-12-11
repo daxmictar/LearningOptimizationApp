@@ -9,6 +9,14 @@ from open_calls.headband_wait import gl_sensor
 def get_next_video(previous_video: str):
     return previous_video
 
+def getHandsOff(handsOffValue):
+    if handsOffValue == "On":
+        print("Handsoff: On")
+        return True
+    
+    print("Handsoff: Off")
+    return False
+
 def handle_request(previous_video):
     from app import data_file
     
