@@ -114,13 +114,15 @@ def exec_proc(proc_name):
     try:
         fn = getattr(__import__('open_calls.' + proc_name), proc_name)
         
-        print(request.form)
+        
 
         #Check which proccess we are calling
         match(proc_name):
-            case "end_movie" | "next_video":
+            case "end_movie":
                 #For the end movie event we pass back {data : previous_video} 
                 resp = fn.handle_request(request.form['data'])
+            case "next_video":
+                resp = fn.handle_request(request.form['data'], request.form)
             case "submit_survey" | "submit_post_video_survey" | "log_in":
                 resp = fn.handle_request(request.form)
             case "play_movie":

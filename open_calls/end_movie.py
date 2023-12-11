@@ -2,14 +2,12 @@ from flask import request, g
 from tools.logging import logger   
 from tools.headband import *
 from neurosdk.cmn_types import * 
-import random
 
 # using sensor from headband_wait due to callback
 from open_calls.headband_wait import gl_sensor
 
 def get_next_video(previous_video: str):
     return previous_video
-
 
 def handle_request(previous_video):
     from app import data_file

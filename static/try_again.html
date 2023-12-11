@@ -96,7 +96,7 @@
     }
 
     function checkAgain() {
-        $.post("/open_api/check_again", {"data" : "checking headband connection again"},
+        $.post("/open_api/check_headband_connection", {"data" : "checking headband connection"},
             (data, textStatus) => {
                 if (data[0] == "Connected") {
                     window.location.href = "index.html";

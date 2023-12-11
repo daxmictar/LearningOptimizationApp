@@ -69,8 +69,15 @@
         const surveyJson = {
             elements: [{
                 "type": "rating",
-                "name": "Video Survey",
+                "name": "PreferenceRating",
                 "title": "How happy are you with the last video?",
+                "hideNumber": true,
+                "isRequired": true,
+                "rateType": "smileys"
+                },{
+                "type": "rating",
+                "name": "AttentionRating",
+                "title": "How was your attention last video?",
                 "hideNumber": true,
                 "isRequired": true,
                 "rateType": "smileys"
@@ -93,8 +100,13 @@
             const variable = urlParams.get('last_video');
             console.log(variable);
 
+            //add the data variable
+            data_object['data'] = variable;
+
+            console.log(data_object);
+
             //Send over the form data
-            $.post("/open_api/next_video", { 'data' : variable},
+            $.post("/open_api/next_video", data_object,
                 function(data, textStatus) {
                     //Gets called when browser recieves response from server
                     console.log("DATA: ");
@@ -113,14 +125,28 @@
                 });
         }
 
-        //survey.onComplete.add(alertResults);
+		function attention_fill() {
+			// make a POST to fill_attention_data to process data for attention
+			// related services
+			$.post("/open_api/fill_attention_data", { "data" : "Filling Attention Collection" }, 
+				(data, textStatus) => {
+					console.log(data)
+				}, 
+				"json")
+				.fail ((response) => console.log("end_attention call failed"));
+		}
 
-        survey.onValueChanged.add(alertResults);
+        survey.onComplete.add(alertResults);
+
+        //survey.onValueChanged.add(alertResults);
         survey.showCompletedPage = false;
 
         $(function() {
             $("#surveyContainer").Survey({ model: survey });
         });
+
+        // processes attention values by default
+        attention_fill();
 
         document
             .getElementById("endSessionButton")

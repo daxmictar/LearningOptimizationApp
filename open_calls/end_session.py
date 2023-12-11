@@ -1,6 +1,3 @@
-from flask import request, g
-from flask_json import FlaskJSON, JsonError, json_response, as_json
-
 from tools.logging import logger
 from tools.session import *
 
@@ -14,8 +11,7 @@ def handle_request():
         return INVALID_SESSION
 
     session_time = calculate_session_time()
-
-    refresh_session()
+    set_session_duration(session_time)
 
     if session_time > 60.00 * 60.00:
         logger.debug(f"Elapsed time for session is {session_time / (60 * 60):.2f} hours")

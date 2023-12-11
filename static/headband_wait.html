@@ -62,12 +62,24 @@
         </p>
     </center>
     <script>
+		function attention_setup() {
+			// make a POST to start_attention to start data collection for attention
+			// related services
+			$.post("/open_api/setup_attention", { "data" : "Setup Attention Collection" }, 
+				(data, textStatus) => {
+					console.log(data)
+				}, 
+				"json")
+				.fail ((response) => console.log("setup_attention call failed"));
+		}
+
         function checkHeadband(data) {
             var redirect_location = "";
 
             // either "Headband is connected" or "Headband is not connected"
             if (data[0] == "Headband is connected") {
                 redirect_location = "index.html";
+                attention_setup();
             } else if (data[0] == "No valid bluetooth adapter") {
                 redirect_location = "index.html";
             } else {
