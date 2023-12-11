@@ -6,16 +6,71 @@
     <title>Headband Initialize</title>
     <script src="https://code.jquery.com/jquery-3.6.0.js" 
 		     integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-</head>
+         <style>
+         html {
+          height: 100%;
+        }
+
+        body {
+          height: 100%;
+          margin: 0;
+          font-family: Arial, Helvetica, sans-serif;
+          display: grid;
+          justify-items: center;
+          align-items: center;
+          background-color: #3a3a3a;
+        }
+
+        #main-holder {
+          width: 50%;
+          height: 70%;
+          display: grid;
+          justify-items: center;
+          align-items: center;
+          background-color: white;
+          border-radius: 7px;
+          box-shadow: 0px 0px 5px 2px black;
+        }
+        .logOutButton{
+          width: 75%;
+          font-size: large;
+          padding: 7px;
+          border: none;
+          border-radius: 5px;
+          color: white;
+          font-weight: bold;
+          background-color: #3a3a3a;
+          cursor: pointer;
+          outline: none;
+          margin-bottom: 50%;
+        }
+        .refreshButton{
+          width: 75%;
+          font-size: large;
+          padding: 7px;
+          border: none;
+          border-radius: 5px;
+          color: white;
+          font-weight: bold;
+          background-color: #3a3a3a;
+          cursor: pointer;
+          outline: none;
+          margin-bottom: 50%;
+        }
+
+        </style>
+
+        </head>
 
 <body>
+  <main id = "main-holder">
     <center>
         <p>
             <h1>Session Summary:</h1>
         </p>
 
-        <button id="refreshButton">Refresh Session</button>
-        <button id="logOutButton">Log Out</button>
+        <button class = "refreshButton" id="refreshButton">Refresh Session</button>
+        <button class = "logOutButton" logOutButton">Log Out</button>
     </center>
 <script>
     function startSession() {
@@ -68,6 +123,6 @@
         .getElementById('logOutButton')
         .addEventListener('click', logOut);
 </script>
-
+</main>
 </body>
 </html>
