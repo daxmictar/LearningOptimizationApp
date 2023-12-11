@@ -87,10 +87,10 @@
             console.log("Is index.html in debug_mode? == " + isInDebugMode);
 
             const userAgent = navigator.userAgent;
-			const chromeOrEdge = userAgent.includes("Chrome") || userAgent.includes("Edge");
-			console.log("Is browser valid? == " + chromeOrEdge);
+			const validBrowser = userAgent.includes("Chrome") || userAgent.includes("Edge") || userAgent.includes("Firefox");
+			console.log("Is browser valid? == " + validBrowser);
 
-			const fireFox = () => {
+			const generateVideoList = () => {
 				return new Promise((resolve, reject) => {
 					$.post("/open_api/get_mp4s", { "data": "Requesting MP4s from static dir" },
 						(data, textStatus) => {
@@ -105,56 +105,20 @@
 				});
 			};
 
-            // so far, this feature ONLY works in Chrome or Edge                                   		    
-            if (chromeOrEdge && isInDebugMode) {
-				console.log("Select directory button is active");
-
-             	const listDirButton = document.getElementById("listDirectoryButton");
+            if (validBrowser && isInDebugMode) {
              	const movieDropDown = document.getElementById("Movies");
-
-             	listDirButton.addEventListener("click", async () => {
-                	try {
-                        // this is the function that is browser specific (also noted as experimental)
-                        const dirHandle = await window.showDirectoryPicker(); // directory
-                        const entries = dirHandle.values();
-
-                		// asynchronously read all of the files and add them to the list.
-                 		for await (const entry of entries) {
-							if (entry.name.includes(".mp4")) {
-								const listItem = document.createElement("option");
-								listItem.value = entry.name;
-								listItem.textContent = entry.name;
-								movieDropDown.appendChild(listItem);
-							}
-                 		}
-         			} catch (error) {
-             			console.log(error);
-            		}
-    			});
-			} else { // uses the fireFox method of retrieving MP4s from static...
-				fireFox()
-					.then((files) => {
+				generateVideoList()
+					.then((videos) => {
 						// const listDirButton = document.getElementById("listDirectoryButton");
 						const movieDropDown = document.getElementById("Movies");
-						for (const mp4 of files) {
+						for (const mp4 of videos) {
 							const listItem = document.createElement("option");
 							listItem.value = mp4;
 							listItem.textContent = mp4;
 							movieDropDown.appendChild(listItem);
 						}
 					});
-				//document
-				//	.getElementById("listDirectoryButton")
-				//	.style = "visibility:hidden";
-				
-				//document
-				//	.getElementById("Movies")
-				//	.style = "visibility:hidden";
-
-				//document
-				//	.getElementById("selectMovieButton")
-				//	.style = "visibility:hidden";
-			}
+    		};
 		}
 
 		function getSelectedText(elementId) {
@@ -176,11 +140,9 @@
 		</video>
 
 		<center>
-			<button id="listDirectoryButton">Select Directory</button>
+			<select name="Movies" id="Movies", style="width: 150px">Movies</select>
+			<button id="selectMovieButton">Select Movie</button>
 		</center>
-
-		<select name="Movies" id="Movies", style="width: 150px">Movies</select>
-		<button id="selectMovieButton">Select Movie</button>
 	</center>
 
 	<script>
