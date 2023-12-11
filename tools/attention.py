@@ -23,6 +23,8 @@ from em_st_artifacts.utils.lib_settings import MathLibSetting, ArtifactDetectSet
 
 from tools.logging import logger
 
+from tools.session import session_rating_append
+
 
 """
 Code simulation Section
@@ -38,6 +40,8 @@ def set_paid_attention(new_attention_val: float, log=False):
     logger.debug(f"New attention value: {new_attention_val}") if log else None
 
     paid_attention = new_attention_val
+
+    session_rating_append(new_attention_val)
 
     attention_valid = True
 
@@ -55,17 +59,17 @@ def get_paid_attention(log=False):
     if log:
         debug_msg = ""
         match (paid_attention):
-            case 0.00: 
+            case 0.0: 
                 debug_msg = "User paid no attention"
-            case 0.20:
+            case 1.0:
                 debug_msg = "User paid little attention"
-            case 0.40:
+            case 2.0:
                 debug_msg = "User paid some attention"
-            case 0.60:
+            case 3.0:
                 debug_msg = "User paid moderate attention"
-            case 0.80:
+            case 4.0:
                 debug_msg = "User paid significant attention"
-            case 1.00:
+            case 5.0:
                 debug_msg = "User paid full attention"
             case _:
                 debug_msg = "Bad value"

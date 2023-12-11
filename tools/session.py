@@ -6,6 +6,8 @@ from tools.session import *
 
 session_start_time = 0.0
 session_end_time = 0.0
+session_duration = 0.0
+session_attention_ratings: list[float] = []
 
 
 # valid responses from API calls
@@ -68,16 +70,38 @@ def end_session():
     
 
 def refresh_session():
-    global session_start_time
-    global session_end_time
+    global session_start_time, session_end_time, session_duration
 
     session_start_time = 0.0
     session_end_time = 0.0
+    session_duration = 0.0
+    session_attention_ratings.clear()
 
 
 def calculate_session_time():
-    global session_start_time
-    global session_end_time
+    global session_start_time, session_end_time
 
     return session_end_time - session_start_time
 
+
+def set_session_duration(duration: float):
+    global session_duration, session_attention_ratings
+
+    session_duration = duration
+
+
+def session_rating_append(score: float):
+    global session_attention_ratings
+
+    session_attention_ratings.append(score)
+
+
+def session_ratings_average() -> float:
+    global session_attention_ratings
+
+    n = len(session_attention_ratings)
+
+    if n < 1:
+        return 0.0
+
+    return sum(session_attention_ratings) / n

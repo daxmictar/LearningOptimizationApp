@@ -1,52 +1,86 @@
 [
 	{
-		"name":"Beach",
-		"weight":1,
-		"favor":20
+		"name":"Algebra",
+		"weight":1
 	},
 	{
-		"name":"Bright",
-		"weight":1,
-		"favor":20
+		"name":"Geometry",
+		"weight":1
 	},
 	{
-		"name":"Bus",
-		"weight":1,
-		"favor":20
+		"name":"Statistics",
+		"weight":1
 	},
 	{
-		"name":"Long",
-		"weight":0.5,
-		"favor":20
+		"name":"Trigonometry",
+		"weight":1
 	},
 	{
-		"name":"Medium",
-		"weight":0.5,
-		"favor":20
+		"name":"len_long",
+		"weight":0.7
 	},
 	{
-		"name":"Person",
-		"weight":1,
-		"favor":20
+		"name":"len_medium",
+		"weight":0.7
 	},
 	{
-		"name":"Plants",
-		"weight":1,
-		"favor":20
+		"name":"len_short",
+		"weight":0.7
 	},
 	{
-		"name":"Short",
-		"weight":0.5,
-		"favor":20
+		"name":"pace_fast",
+		"weight":0.7
 	},
 	{
-		"name":"Trees",
-		"weight":1,
-		"favor":20
+		"name":"pace_medium",
+		"weight":0.7
 	},
 	{
-		"name":"Water",
-		"weight":1,
-		"favor":20
+		"name":"pace_slow",
+		"weight":0.7
+	},
+	{
+		"name":"delv_human_narrator",
+		"weight":0.7
+	},
+	{
+		"name":"delv_human_presenter",
+		"weight":0.7
+	},
+	{
+		"name":"comedic",
+		"weight":0.6
+	},
+	{
+		"name":"overview",
+		"weight":0.6
+	},
+	{
+		"name":"variables",
+		"weight":0.8
+	},
+	{
+		"name":"inferential",
+		"weight":0.8
+	},
+	{
+		"name":"sin_cos_tan",
+		"weight":0.8
+	},
+	{
+		"name":"angles",
+		"weight":0.8
+	},
+	{
+		"name":"polynomial",
+		"weight":0.8
+	},
+	{
+		"name":"standard_deviation",
+		"weight":0.8
+	},
+	{
+		"name":"unit_circle",
+		"weight":0.8
 	}
 ]
