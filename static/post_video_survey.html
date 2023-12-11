@@ -9,10 +9,62 @@
 
     <script type="text/javascript" src="https://unpkg.com/survey-jquery/survey.jquery.min.js"></script>
 
-    <button id="endSessionButton">End Session</button>
+
+    <style>
+    html {
+      height: 100%;
+    }
+
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      display: grid;
+      justify-items: center;
+      align-items: center;
+      background-color: #3a3a3a;
+    }
+
+    #main-holder {
+      width: 50%;
+      height: 70%;
+      display: grid;
+      justify-items: center;
+      align-items: center;
+      background-color: white;
+      border-radius: 7px;
+      box-shadow: 0px 0px 5px 2px black;
+    }
+    #surveyContainer {
+      width: 75%;
+      height: 75%;
+      display: grid;
+      justify-items: center;
+      align-items: center;
+      background-color: white;
+
+    }
+    .endButton{
+            width: 75%;
+            font-size: large;
+            padding: 7px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            background-color: #19b394;
+            cursor: pointer;
+            outline: none;
+            margin-bottom: 10%;
+          }
+
+</style>
 </head>
+<main id = "main-holder">
 <body>
-    <div id="surveyContainer"></div>
+  <button class="endButton " id="endSessionButton">End Session</button>
+    <div class= "survey" id="surveyContainer">
+
     <script>
         const surveyJson = {
             elements: [{
@@ -36,7 +88,7 @@
                 var name = element_list[i].name;
                 data_object[name] = sender.data[name];
             }
-            
+
             const urlParams = new URLSearchParams(window.location.search);
             const variable = urlParams.get('last_video');
             console.log(variable);
@@ -47,7 +99,7 @@
                     //Gets called when browser recieves response from server
                     console.log("DATA: ");
                     console.log(data);
-                    
+
                     if(data[0] == "No Video"){
                         window.location.href = 'no_videos.html';
                     } else {
@@ -86,5 +138,7 @@
             });
 
     </script>
+
 </body>
+</main>
 </html>
