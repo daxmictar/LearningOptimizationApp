@@ -100,14 +100,14 @@
                 console.log("DATA: ");
                 console.log(data);
 
-                startSession();
-
                 //Redirect to index page upon server response from survey
                 window.location.href = 'index.html';
             }, "json").fail(function(response){
                 console.log("Error");
                 console.log(response);
             });
+
+        startSession();
     }
 
     function logOut(sender) {
@@ -117,6 +117,8 @@
                 //Gets called when browser recieves response from server
                 console.log("DATA: ");
                 console.log(data);
+
+                refreshSession();
 
                 //Redirect to index page upon server response from survey
                 window.location.href = 'log_in.html';
@@ -133,6 +135,7 @@
     document
         .getElementById('logOutButton')
         .addEventListener('click', logOut);
+
 
     const attention_result = document.getElementById("AttentionResult")
     get_average_attention()
@@ -154,6 +157,8 @@
             tag_result.innerHTML = result;
         })
         .catch((error) => console.log(error));
+
+    
 
 
 </script>
